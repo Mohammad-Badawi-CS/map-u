@@ -234,7 +234,7 @@
       .info-detail { padding-bottom: 4px; }
     }
 
-    /* الجوال: الوضع العمودي (Portrait) - الخريطة تقلب 90 درجة */
+    /* الجوال: الوضع العمودي (Portrait) */
     @media (max-width: 950px) and (orientation: portrait) {
       #map-wrapper {
         width: 749.65px;
@@ -248,7 +248,7 @@
       }
     }
 
-    /* الجوال: الوضع الأفقي (Landscape) - الخريطة تبقى بوضعها الطبيعي */
+    /* الجوال: الوضع الأفقي (Landscape) */
     @media (max-width: 950px) and (orientation: landscape) {
       #map-wrapper {
         width: 1690.73px;
@@ -623,13 +623,14 @@
     let scale = 1;
     let pointX = 0;
     let pointY = 0;
+    let isInitialized = false; // يمنع إعادة تعيين موضع الخريطة عند التمرير
     
     let isPanning = false;
     let startX = 0;
     let startY = 0;
     let lastTouchDistance = null;
 
-    // دالة لاستخراج الأبعاد الحالية للخريطة بناءً على الاستعلام (Media Query)
+    // دالة لاستخراج الأبعاد
     function getMapDimensions() {
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
       return {
@@ -638,7 +639,7 @@
       };
     }
 
-    // دالة لتطبيق التحويل وتأمين حدود السحب
+    // دالة لتطبيق التحويل وتأمين حدود السحب (Limits)
     function setTransform() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
@@ -646,44 +647,51 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // تقييد حركة الخريطة لتبقى داخل حدود الشاشة أو تتوسطها
-      if (mapWidth > vpWidth) {
-        pointX = Math.min(0, Math.max(pointX, vpWidth - mapWidth));
-      } else {
-        pointX = (vpWidth - mapWidth) / 2; // التوسيط إذا كانت أصغر
-      }
+      // حدود مرنة تسمح بالسحب بحد أقصى عشان الخريطة ما تختفي
+      const marginX = vpWidth * 0.4; // يسمح بخروج 60% من الشاشة كحد أقصى
+      const marginY = vpHeight * 0.4;
 
-      if (mapHeight > vpHeight) {
-        pointY = Math.min(0, Math.max(pointY, vpHeight - mapHeight));
-      } else {
-        pointY = (vpHeight - mapHeight) / 2; // التوسيط إذا كانت أصغر
-      }
+      pointX = Math.min(vpWidth - marginX, Math.max(pointX, -mapWidth + marginX));
+      pointY = Math.min(vpHeight - marginY, Math.max(pointY, -mapHeight + marginY));
 
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 
-    // دالة التوسيط وضبط الزووم التلقائي في المنتصف
-    function fitAndCenterMap() {
+    // تجهيز التوسيط الأولي
+    function initMapPosition() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
-      const dims = getMapDimensions();
+      if (vpWidth === 0 || vpHeight === 0) return;
 
-      // تحديد المقياس (Scale) بحيث يملأ حوالي 95% من مساحة العرض
-      scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
-      if (scale < 0.15) scale = 0.15; // الحد الأدنى
-      if (scale > 3) scale = 3;        // الحد الأقصى
+      const dims = getMapDimensions();
+      const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
+
+      if (isMobilePortrait) {
+        // تكبير أكثر للجوال عشان ما تكون الخريطة صغيرة جداً
+        scale = (vpHeight / dims.height) * 0.9;
+      } else {
+        // للكمبيوتر
+        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
+      }
+
+      scale = Math.min(Math.max(0.15, scale), 4);
 
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // توسيط الخريطة
+      // توسيط
       pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
 
+      // لف الخريطة يسار (إزاحة الكاميرا) أول ما يفتح الموقع بالجوال
+      if (isMobilePortrait) {
+          pointX += vpWidth * 0.3; // تحريك الخريطة جهة اليمين ليكشف الجانب الأيسر
+      }
+
       setTransform();
+      isInitialized = true;
     }
 
-    // حساب المسافة بين إصبعين
     function getDistance(touch1, touch2) {
       const dx = touch1.clientX - touch2.clientX;
       const dy = touch1.clientY - touch2.clientY;
@@ -712,7 +720,7 @@
       const ys = (e.clientY - pointY) / scale;
       const delta = -e.deltaY;
       (delta > 0) ? (scale *= 1.12) : (scale /= 1.12);
-      scale = Math.min(Math.max(0.15, scale), 3);
+      scale = Math.min(Math.max(0.15, scale), 4);
       pointX = e.clientX - xs * scale;
       pointY = e.clientY - ys * scale;
       setTransform();
@@ -865,17 +873,21 @@
       if (match) selectUnit(match);
     });
 
-    // استدعاء دالة التوسيط عند تغير الأبعاد أو تدوير الشاشة
-    window.addEventListener('resize', fitAndCenterMap);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(fitAndCenterMap, 150);
+    // أحداث تغيير الحجم والشاشة
+    window.addEventListener('resize', () => {
+      if (isInitialized) setTransform(); // يحافظ على مكان التمرير ولا يرجعه للنص
     });
 
-    // تجهيز الخريطة أول مرة بشكل صحيح للجوال
-    window.addEventListener('DOMContentLoaded', fitAndCenterMap);
+    window.addEventListener('orientationchange', () => {
+      isInitialized = false;
+      setTimeout(initMapPosition, 150);
+    });
+
+    // التحميل المبدئي
+    window.addEventListener('DOMContentLoaded', initMapPosition);
     window.addEventListener('load', () => {
-      fitAndCenterMap();
-      setTimeout(fitAndCenterMap, 150);
+      if (!isInitialized) initMapPosition();
+      setTimeout(initMapPosition, 150);
     });
   </script>
 </body>

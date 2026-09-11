@@ -271,6 +271,7 @@
         <defs>
           <style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#273040;}.cls-4{fill:#47415B;}.cls-5{fill:#19212D;}.cls-6{fill:#3F4E66;}.cls-7{fill:#28203F;}.cls-11,.cls-8{fill:#323c4c;}.cls-9{fill:#0C0D11;}.cls-10{fill:#597699;}.cls-11{stroke:#fff;stroke-miterlimit:10;stroke-width:0.5px;}.cls-12{fill:#333;}.cls-13{fill:#597699;}.cls-14{fill:#28203F;}</style>
         </defs>
+        <!-- جميع عناصر SVG الأصلية دون أي نقص -->
 <path class="cls-1" d="M1687.56,207.09C1648.63,89.69,1538,5,1407.5,5H1167V45h-40V85h-40v40h-40V294H454V85H374V45H334V5H81.35c-16,0-26.17.4-44.81,9.4a48.27,48.27,0,0,0-8.12,6A45,45,0,0,0,21.86,28C15.84,36.59,12,51.64,12,63c0,6,0,12,0,18V237h93v87h18.89v25.57H56.47L42.93,359.84l13.61,12.25h67.35v27.27H105.24v.13l-.14,30.32H56.53l-10,9.08L43.18,442l3.39,3.68,10,10.85H105.1l.05,10.5.09,21.73h18.52v28H36.6v16.4h87.16v45H86.59v29.34h37.3v22.33h-.13v.1l8.53,7.63c.46,1.59,1,3.13,1.58,4.65a57.1,57.1,0,0,0,6.7,12.57,50.38,50.38,0,0,0,9.76,10.39,44.33,44.33,0,0,0,11.31,6.6A40.65,40.65,0,0,0,173,674.39l.32,0v-.21l.26.24h24.81V578.09h-56V488.73h.13v-.07h18.29v-30.3h69.71v-26.7H160.83v-32.3H142.41V372.09h28.1L184,361.81l-13.51-12.18h-27.9V324h239v75.36H362.89V421.7h18.65v44.68H362.89v22.35h18.65v89.36h-37.3v29.34h37.3v22.33h-.13v.1l26.39,23.63,23.14,20.72.25.24H456V578.09H400.06V488.73H418.7V399.36H400.06V324H639v75.36H620.3V421.7H639v44.68H620.3v22.35H639v89.36H601.66v29.34H639v22.33h-.13v.1l26.4,23.63,23.13,20.72.26.24h24.8V578.09H657.47V488.73h18.65V399.36H657.47V324H898.23v75.36H879.59V421.7h18.64v44.68H879.59v22.35h18.64v89.36H860.94v29.34h37.29v22.33h-.12v.1l26.39,23.63,23.14,20.72.26.24h24.8V578.09h-56V488.73h18.66V399.36H916.75V324h130.07L1087,362l-40,38.2V613h201l41.5,41.5L1333,611l46.5,46.5V324h-89.59a120,120,0,1,1,237.59-24.06A119.54,119.54,0,0,1,1517,349h65.46v50h40V359h80V300A294.45,294.45,0,0,0,1687.56,207.09Zm-1583-91.69v-30h34.93v30ZM140,197H105V167h35ZM294,85h32v30H294Zm-96.51,0h34.93v30H197.49ZM157,294c0-22.09,9.74-43.84,25.48-60.07S220,207,244,207c48.05,0,87,42.82,87,87Zm217-97H342V167h32Zm833,97h-80V244.5h80Zm0-89h-40V165h40ZM1327,85h-40V45h40Zm119.68,6s-20.68-4-40-3.6V45.9s29.3.1,47.74,4.4Zm108.14,57.45A241.77,241.77,0,0,0,1523,122.9l22.82-34.7a234.49,234.49,0,0,1,38,30.56Zm60.47,112.8s-4.29-23.25-12-41l38.42-15.65a213.53,213.53,0,0,1,14,49.1Z" transform="translate(-12 -5)"/>       <path class="cls-2" d="M1156.81,324.5,1193.27,358,1103.8,443.5h-17.3v50h17.31l43.69,39.74V612.5h-100V400.41l79.7-75.91h29.61m.19-.5h-30l-80,76.2V613h101V533l-44-40h-17V444h17l90-86-37-34Z" transform="translate(-12 -4.35)"/>
         <polygon class="cls-3" points="1062.25 439.4 1062.25 390.94 1109.87 345.91 1150.59 383.32 1091.9 439.4 1062.25 439.4"/>
         <path class="cls-2" d="M1121.87,350.6l40.35,37.07L1103.8,443.5h-29.3V395.4l47.37-44.8m0-.68L1074,395.18V444h30l59-56.33-41.08-37.75Z" transform="translate(-12 -4.35)"/>
@@ -713,12 +714,12 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // تم توسيع الهوامش لتكون نصف الشاشة، مما يمنع التصاق الخريطة ويعطيك حرية سحب كاملة
-      const marginX = vpWidth * 0.5; 
-      const marginY = vpHeight * 0.5;
+      // تم تقليص الهوامش لـ 15% فقط بدلاً من 40%، مما يسمح بحرية سحب شبه تامة للخريطة
+      const marginX = vpWidth * 0.15; 
+      const marginY = vpHeight * 0.15;
 
-      pointX = Math.min(marginX, Math.max(pointX, -mapWidth + marginX));
-      pointY = Math.min(marginY, Math.max(pointY, -mapHeight + marginY));
+      pointX = Math.min(vpWidth - marginX, Math.max(pointX, -mapWidth + marginX));
+      pointY = Math.min(vpHeight - marginY, Math.max(pointY, -mapHeight + marginY));
 
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
@@ -733,8 +734,8 @@
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
 
       if (isMobilePortrait) {
-        // الاعتماد على عرض الشاشة بالجوال لضمان وضوح الخريطة وعدم ظهورها بشكل صغير جداً
-        scale = (vpWidth / dims.width) * 0.95;
+        // تكبير أكثر للجوال عشان ما تكون الخريطة صغيرة جداً
+        scale = (vpHeight / dims.height) * 0.9;
       } else {
         // للكمبيوتر
         scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
@@ -745,9 +746,16 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // توسيط مبدئي دقيق في منتصف الشاشة تماماً
-      pointX = (vpWidth - mapWidth) / 3;
+      // توسيط مبدئي
+      pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
+
+      // لف الخريطة يسار (إزاحة الكاميرا) أول ما يفتح الموقع بالجوال
+      if (isMobilePortrait) {
+          // تم تغيير الحسبة لتعطي إزاحة مضاعفة وأقوى لإخفاء أي مساحة فارغة
+          // يمكنك تكبير الرقم (مثلاً 0.45) أو تصغيره (مثلاً 0.20) حسب رغبتك
+          pointX += mapWidth * 0.35; 
+      }
 
       setTransform();
       isInitialized = true;

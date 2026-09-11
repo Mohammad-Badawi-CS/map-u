@@ -731,6 +731,7 @@
       const dims = getMapDimensions();
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
 
+      // حساب الحجم عشان تملأ الخريطة الشاشة بشكل مناسب 
       if (isMobilePortrait) {
         scale = (vpWidth / dims.width) * 0.95;
       } else {
@@ -742,17 +743,9 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // التوسيط الافتراضي في المنتصف تماماً
+      // التوسيط في المنتصف 100% بدون أي إزاحات جانبية
       pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
-
-      // === الإضافة الجديدة هنا لتوجيه الخريطة لليسار في الجوال الطولي ===
-      if (isMobilePortrait) {
-        // طرح القيمة يسحب الخريطة نفسها لليسار (وبالتالي عينك تشوف الجزء اليمين)
-        // كل ما زدت الرقم (مثلا 0.35 أو 0.45) بتنسحب لليسار أكثر
-        // وإذا تبغاها تنسحب لليمين، غير الـ (-) إلى (+)
-        pointX -= (mapWidth * 0.25);
-      }
 
       setTransform();
       isInitialized = true;

@@ -190,8 +190,8 @@
     }
 
     /* -------------------------------------
-       تخصيص التجاوب لجميع وضعيات الجوال
-       ------------------------------------- */
+        تخصيص التجاوب لجميع وضعيات الجوال
+        ------------------------------------- */
     @media (max-width: 950px) {
       .mobile-menu-btn {
         display: block;
@@ -671,7 +671,7 @@
       // تحديد المقياس (Scale) بحيث يملأ حوالي 95% من مساحة العرض
       scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
       if (scale < 0.15) scale = 0.15; // الحد الأدنى
-      if (scale > 3) scale = 3;       // الحد الأقصى
+      if (scale > 3) scale = 3;        // الحد الأقصى
 
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
@@ -865,12 +865,18 @@
       if (match) selectUnit(match);
     });
 
-    // استدعاء دالة التوسيط عند تشغيل الموقع وعند تدوير الشاشة (قلب الجوال)
+    // استدعاء دالة التوسيط عند تغير الأبعاد أو تدوير الشاشة
     window.addEventListener('resize', fitAndCenterMap);
-    window.addEventListener('orientationchange', fitAndCenterMap);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(fitAndCenterMap, 150);
+    });
 
-    // تجهيز الخريطة أول مرة
-    fitAndCenterMap();
+    // تجهيز الخريطة أول مرة بشكل صحيح للجوال
+    window.addEventListener('DOMContentLoaded', fitAndCenterMap);
+    window.addEventListener('load', () => {
+      fitAndCenterMap();
+      setTimeout(fitAndCenterMap, 150);
+    });
   </script>
 </body>
 </html>

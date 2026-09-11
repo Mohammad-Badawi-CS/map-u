@@ -647,9 +647,9 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // حدود مرنة تسمح بالسحب بحد أقصى عشان الخريطة ما تختفي
-      const marginX = vpWidth * 0.4; // يسمح بخروج 60% من الشاشة كحد أقصى
-      const marginY = vpHeight * 0.4;
+      // تم تقليص الهوامش لـ 15% فقط بدلاً من 40%، مما يسمح بحرية سحب شبه تامة للخريطة
+      const marginX = vpWidth * 0.15; 
+      const marginY = vpHeight * 0.15;
 
       pointX = Math.min(vpWidth - marginX, Math.max(pointX, -mapWidth + marginX));
       pointY = Math.min(vpHeight - marginY, Math.max(pointY, -mapHeight + marginY));
@@ -679,13 +679,15 @@
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      // توسيط
+      // توسيط مبدئي
       pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
 
       // لف الخريطة يسار (إزاحة الكاميرا) أول ما يفتح الموقع بالجوال
       if (isMobilePortrait) {
-          pointX += vpWidth * 0.3; // تحريك الخريطة جهة اليمين ليكشف الجانب الأيسر
+          // تم تغيير الحسبة لتعطي إزاحة مضاعفة وأقوى لإخفاء أي مساحة فارغة
+          // يمكنك تكبير الرقم (مثلاً 0.45) أو تصغيره (مثلاً 0.20) حسب رغبتك
+          pointX += mapWidth * 0.35; 
       }
 
       setTransform();

@@ -248,7 +248,7 @@
       #map-wrapper svg {
         width: 1690.73px;
         height: 749.65px;
-        transform: rotate(270deg) translateY(-100%);
+        transform: rotate(90deg) translateY(-100%);
         transform-origin: top left;
       }
     }
@@ -340,7 +340,33 @@
     // متغيرات التكبير باللمس
     let lastTouchDistance = null;
 
-    function setTransform() {
+function setTransform() {
+      // 1. تحديد أبعاد نافذة العرض (Viewport)
+      const vpWidth = viewport.clientWidth;
+      const vpHeight = viewport.clientHeight;
+
+      // 2. حساب الأبعاد الفعلية للخريطة بناءً على مقياس التكبير (Scale) ونوع الجهاز
+      const isMobile = window.innerWidth <= 768;
+      const mapWidth = (isMobile ? 749.65 : 1690.73) * scale;
+      const mapHeight = (isMobile ? 1690.73 : 749.65) * scale;
+
+      // 3. تقييد الإحداثي السيني (X)
+      if (mapWidth > vpWidth) {
+        // إذا كانت الخريطة أعرض من الشاشة، يتم حصر السحب بين حافة الخريطة وحافة الشاشة
+        pointX = Math.min(0, Math.max(pointX, vpWidth - mapWidth));
+      } else {
+        // إذا كانت الخريطة أصغر، يتم إبقاؤها داخل الشاشة
+        pointX = Math.max(0, Math.min(pointX, vpWidth - mapWidth));
+      }
+
+      // 4. تقييد الإحداثي الصادي (Y)
+      if (mapHeight > vpHeight) {
+        pointY = Math.min(0, Math.max(pointY, vpHeight - mapHeight));
+      } else {
+        pointY = Math.max(0, Math.min(pointY, vpHeight - mapHeight));
+      }
+
+      // 5. تطبيق الإحداثيات الجديدة
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 

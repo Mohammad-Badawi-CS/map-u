@@ -138,6 +138,36 @@
       white-space: nowrap;
     }
 
+    /* زر إظهار وإخفاء القوائم السريعة (مخفي في شاشات الكمبيوتر) */
+    .quick-links-toggle {
+      display: none;
+      width: 100%;
+      background: #23282f;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    .quick-links-toggle:hover {
+      background: #2a2f38;
+      border-color: var(--accent-cyan);
+    }
+    .toggle-icon {
+      transition: transform 0.3s ease;
+      font-size: 0.8rem;
+    }
+    .quick-links-toggle.open .toggle-icon {
+      transform: rotate(180deg);
+    }
+
     /* تنسيقات القوائم السريعة (المكاتب والخدمات) */
     .quick-links-container {
       margin-top: 16px;
@@ -267,6 +297,12 @@
       stroke-width: 8px !important;
     }
 
+    /* أنيميشن لظهور القوائم السريعة بسلاسة */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 950px) and (orientation: portrait) {
       .sidebar {
         position: fixed;
@@ -369,6 +405,19 @@
 
       #map-wrapper { width: 749.65px; height: 1690.73px; }
       #map-wrapper svg { transform: rotate(270deg); }
+
+      /* إخفاء القوائم السريعة في الجوال وإظهار الزر */
+      .quick-links-toggle {
+        display: flex;
+      }
+      .quick-links-container {
+        display: none; /* مخفي بشكل افتراضي */
+        margin-top: 12px;
+      }
+      .quick-links-container.open {
+        display: flex; /* يظهر عند النقر */
+        animation: fadeIn 0.3s ease forwards;
+      }
     }
 
     @media (max-width: 950px) and (orientation: landscape) {
@@ -712,8 +761,14 @@
           <button class="details-btn" id="mobileMenuBtn">التفاصيل ☰</button>
         </div>
 
-        <!-- القوائم السريعة تظهر تحت البحث في الحاسب / أفقياً، وتحت التفاصيل عمودياً -->
-        <div class="quick-links-container">
+        <!-- زر الانبثاق الخاص بالوضع العمودي في الجوال -->
+        <button id="toggleQuickLinksBtn" class="quick-links-toggle">
+          <span>استكشاف سريع (مكاتب وخدمات)</span>
+          <span class="toggle-icon">▼</span>
+        </button>
+
+        <!-- القوائم السريعة تظهر تحت البحث في الحاسب / أفقياً، ومخفية عمودياً حتى يتم النقر على الزر -->
+        <div class="quick-links-container" id="quickLinksContainer">
           <!-- القائمة الأولى: أهم المكاتب -->
           <div class="quick-list">
             <div class="category-title">أهم المكاتب</div>
@@ -860,6 +915,10 @@
     const overlay = document.getElementById('overlay');
     const searchInput = document.getElementById('searchInput');
     const suggestionsList = document.getElementById('suggestionsList');
+    
+    // عناصر القوائم السريعة
+    const toggleQuickLinksBtn = document.getElementById('toggleQuickLinksBtn');
+    const quickLinksContainer = document.getElementById('quickLinksContainer');
 
     function toggleMenu() {
       bottomSheet.classList.toggle('open');
@@ -868,6 +927,14 @@
 
     mobileMenuBtn.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
+
+    // حدث النقر على زر استكشاف سريع (الجوال)
+    if(toggleQuickLinksBtn) {
+      toggleQuickLinksBtn.addEventListener('click', () => {
+        quickLinksContainer.classList.toggle('open');
+        toggleQuickLinksBtn.classList.toggle('open');
+      });
+    }
 
     const viewport = document.getElementById('viewport');
     const wrapper = document.getElementById('map-wrapper');

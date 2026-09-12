@@ -974,7 +974,7 @@
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 
-function initMapPosition() {
+    function initMapPosition() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
       if (vpWidth === 0 || vpHeight === 0) return;
@@ -982,10 +982,10 @@ function initMapPosition() {
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
       
       if (isMobilePortrait) {
-        // الحجم في الجوال بالوضع العمودي (تم الإبقاء عليه كما هو)
+        // الحجم في الجوال بالوضع العمودي
         scale = (vpWidth / dims.width) * 1.22;
       } else {
-        // تصغير الخريطة في اللابتوب والجوال بالوضع الأفقي (تغيير 1.22 إلى 0.85)
+        // تصغير الخريطة في اللابتوب والجوال بالوضع الأفقي
         scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
       }
       
@@ -999,7 +999,7 @@ function initMapPosition() {
 
       // إنزال الخريطة للأسفل في وضع الجوال العمودي
       if (isMobilePortrait) {
-        pointY += 50; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
+        pointY += 50;
       }
 
       setTransform();
@@ -1384,6 +1384,12 @@ function initMapPosition() {
               suggestionsList.classList.remove('active');
           }
         }, 10);
+
+        // إخفاء القائمة في الجوال بعد الاختيار
+        if (window.innerWidth <= 950 && quickLinksContainer && toggleQuickLinksBtn) {
+          quickLinksContainer.classList.remove('open');
+          toggleQuickLinksBtn.classList.remove('open');
+        }
       });
     });
 

@@ -281,6 +281,7 @@
       height: 100%;
       display: block;
       transform: rotate(180deg);
+      overflow: visible;
     }
 
     .unit-clickable {
@@ -744,14 +745,14 @@
     <div class="sidebar-content">
       
       <div class="desktop-header">
-        <h2>مستكشف المخطط</h2>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">انقر على أي وحدة أو غرفة لعرض تفاصيلها</p>
+        <h2>الخريطة الجامعية</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">حدد على أي مكتب او قاعة لعرض تفاصيلها</p>
       </div>
 
       <div class="top-panel">
         <div class="search-container">
           <div class="search-box">
-            <input type="text" id="searchInput" placeholder="بحث باسم الوحدة أو الشخص...">
+            <input type="text" id="searchInput" placeholder="بحث باسم شخص أو منصب أو قاعة...">
           </div>
           <ul id="suggestionsList" class="suggestions-list"></ul>
         </div>
@@ -771,15 +772,17 @@
         <div class="quick-links-container" id="quickLinksContainer">
           <!-- القائمة الأولى: أهم المكاتب -->
           <div class="quick-list">
-            <div class="category-title">أهم المكاتب</div>
+            <div class="category-title">أهم مكاتب الكلية</div>
             <div class="chips-scroll">
               <button class="chip auto-select" data-search="عميد كلية">مكتب العميد</button>
-              <button class="chip auto-select" data-search="رئيس قسم علوم الحاسب">علوم الحاسب</button>
-              <button class="chip auto-select" data-search="نظم المعلومات">نظم المعلومات</button>
-              <button class="chip auto-select" data-search="هندسة الحاسب">هندسة الحاسب</button>
-              <button class="chip auto-select" data-search="الأمن السيبراني">الأمن السيبراني</button>
-              <button class="chip auto-select" data-search="الذكاء الاصطناعي">الذكاء الاصطناعي</button>
-              <button class="chip auto-select" data-search="لجنة الإرشاد">لجنة الإرشاد والجداول</button>
+              <button class="chip auto-select" data-search="وكيل الشؤون الأكاديمية">وكيل الشؤون الأكاديمية</button>
+              <button class="chip auto-select" data-search="وكيل كلية علوم وهندسة الحاسب الألي للدراسات العليا">وكيل الدراسات العليا</button>
+              <button class="chip auto-select" data-search="رئيس قسم علوم الحاسب">رئيس قسم علوم الحاسب</button>
+              <button class="chip auto-select" data-search="نظم المعلومات">رئيسة قسم نظم المعلومات</button>
+              <button class="chip auto-select" data-search="هندسة الحاسب">رئيس قسم هندسة الحاسب</button>
+              <button class="chip auto-select" data-search="الأمن السيبراني">رئيس قسم الأمن السيبراني</button>
+              <button class="chip auto-select" data-search="الذكاء الاصطناعي">رئيس قسم الذكاء الاصطناعي وعلم البيانات</button>
+              <button class="chip auto-select" data-search="لجنة الإرشاد">رئيس لجنة الإرشاد والجداول</button>
             </div>
           </div>
           <!-- القائمة الثانية: الخدمات العامة -->
@@ -799,7 +802,7 @@
 
       <div class="bottom-sheet" id="bottomSheet">
         <div class="selected-info">
-          <span class="info-badge" id="infoType">اختر عنصراً من الخريطة</span>
+          <span class="info-badge" id="infoType">اختر عنصر من الخريطة</span>
           
           <h3 id="infoNameDesktop" class="desktop-only-name">لم يتم اختيار عنصر</h3>
           
@@ -820,98 +823,97 @@
 
   <script>
     const customUnits = {
-      "map_element_1": { name: "ممر رئيسي", type: "مرر"},
-      "map_element_2": { name: "قاعة 172FAA002", type: "قاعة"},
-      "map_element_3": { name: "قاعة 172FAA001", type: "قاعة"},
-      "map_element_4": { name: "المسرح الجامعي بأبيار علي", type: "مسرح" },
-      "map_element_5": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_6": { name: "درج جناح C", type: "خدمات عامة"},
-      "map_element_7": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_8": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_9": { name: "قاعة 172FC005", type: "قاعة"},
-      "map_element_10": { name: "قاعة 172FC006", type: "قاعة"},
-      "map_element_11": { name: "قاعة 172FC008", type: "قاعة"},
-      "map_element_12": { name: "قاعة 172FC003", type: "قاعة"},
-      "map_element_13": { name: "قاعة 172FC004", type: "قاعة"},
-      "map_element_14": { name: "قاعة 172FC007", type: "قاعة"},
-      "map_element_15": { name: "قاعة 172FC009", type: "قاعة"},
-      "map_element_16": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_17": { name: "قاعة 172FC002", type: "قاعة"},
-      "map_element_18": { name: "قاعة 172FC011", type: "قاعة"},
-      "map_element_19": { name: "قاعة 172FC010", type: "قاعة"},
-      "map_element_20": { name: "قاعة 172FC001", type: "قاعة"},
-      "map_element_21": { name: "درج جناح B", type: "خدمات عامة"},
-      "map_element_22": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_23": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_24": { name: "قاعة 172FB005", type: "قاعة"},
-      "map_element_25": { name: "قاعة 172FB006", type: "قاعة"},
-      "map_element_26": { name: "قاعة 172FB008", type: "قاعة"},
-      "map_element_27": { name: "قاعة 172FB003", type: "قاعة"},
-      "map_element_28": { name: "قاعة 172FB004", type: "قاعة"},
-      "map_element_29": { name: "قاعة 172FB007", type: "قاعة"},
-      "map_element_30": { name: "قاعة 172FB009", type: "قاعة"},
-      "map_element_31": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_32": { name: "قاعة 172FB002", type: "قاعة"},
-      "map_element_33": { name: "قاعة 172FB011", type: "قاعة"},
-      "map_element_34": { name: "قاعة 172FB010", type: "قاعة"},
-      "map_element_35": { name: "قاعة 172FB001", type: "قاعة"},
-      "map_element_36": { name: "درج جناح A", type: "خدمات عامة"},
-      "map_element_37": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_38": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_39": { name: "قاعة 172FA005", type: "قاعة"},
-      "map_element_40": { name: "قاعة 172FA006", type: "قاعة"},
-      "map_element_41": { name: "قاعة 172FA008", type: "قاعة"},
-      "map_element_42": { name: "قاعة 172FA003", type: "قاعة"},
-      "map_element_43": { name: "قاعة 172FA004", type: "قاعة"},
-      "map_element_44": { name: "قاعة 172FA007", type: "قاعة"},
-      "map_element_45": { name: "قاعة 172FA009 - 172FAA003", type: "قاعة"},
-      "map_element_46": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_47": { name: "قاعة 172FA002", type: "قاعة"},
-      "map_element_48": { name: "قاعة 172FA011", type: "قاعة"},
-      "map_element_49": { name: "قاعة 172FA010", type: "قاعة"},
-      "map_element_50": { name: "قاعة 172FA001", type: "قاعة"},
-      "map_element_51": { name: "درج جناح C", type: "خدمات عامة"},
-      "map_element_52": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_53": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_58": { name: "م/عادل الحجيلي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عادل الحجيلي", "مكتب م/عادل الحجيلي", "مهندس عادل"] },
-      "map_element_82": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_83": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
-      "map_element_84": { name: "رئيس لجنة الإرشاد والجداول", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عبدالحميد عمارة", "دكتور عبدالحميد", "جدول", "جداول", "مرشد","BIG BOSS","البيق بوس","موقع", "الحذف والاضافة", "حذف","اضافة", "مادة","مواد","لجنة الارشاد", "الارشاد", "رئيس لجنة الارشاد - د/عبدالحميد عمارة", "مكتب رئيس لجنة الأرشاد"] },
-      "map_element_85": { name: "درج 1", type: "خدمات عامة"},
-      "map_element_86": { name: "مصعد 1", type: "خدمات عامة"},
-      "map_element_87": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_99": { name: "مدير مكتب وكيل الدراسات العليا", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["نواف المحمدي", "استاذ نواف", "أ/نواف المحمدي", "مدير مكتب وكيل الدراسات العليا"] },
-      "map_element_100": { name: "وكيل الدراسات العليا", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["فهد غبان", "دكتور فهد", "د/فهد غبان", "وكيل كلية علوم وهندسة الحاسب الألي للدراسات العليا"] },
-      "map_element_101": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
-      "map_element_107": { name: "د/حمزة غندوره", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["حمزة غندورة", "دكتور حمزة", "حمزه غندوره", "مكتب د/حمزة غندوره"] },
-      "map_element_108": { name: "مكتب م.محمد الحربي وم.رجاء الحجيلي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["محمد نهار الحربي","ابو نهار","محمد نهار راضي الحربي", "رجاء الحجيلي", "مهندس محمد", "مهندس رجاء", "محمد الحربي", "مكتب م/محمد نهار الحربي - م/رجاء الحجيلي"] },
-      "map_element_115": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_116": { name: "السندوتش الشامي", type: "خدمات عامة" ,keywords: ["الشامي","اكل","طعمية","فلافل","سنوتش", "بوفية", "بوفيه", "مطعم"]},
-      "map_element_117": { name: "د/رشيق مرعي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["رشيق مرعي", "دكتور رشيق", "مكتب د/رشيق مرعي"] },
-      "map_element_120": { name: "مصعد 2", type: "خدمات عامة"},
-      "map_element_121": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_122": { name: "درج 2", type: "خدمات عامة"},
-      "map_element_123": { name: "استراحة طالبات الدراسات العليا", type: "خدمات خاصة"},
-      "map_element_124": { name: "مصلى", type: "خدمات عامة", keywords: ["جامع", "مسجد"]},
-      "map_element_127": { name: "قاعة اجتماعات العميد", type: "قاعة اجتماعات"},
-      "map_element_128": { name: "عميد كلية علوم وهندسة الحاسب", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["احمد شويل", "أحمد شويل", "مكتب عميد كلية علوم وهندسة الحاسب الألي", "العميد", "عميد", "دكتور احمد"] },
-      "map_element_131": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_132": { name: "مدير مكتب العميد", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["احمد حمزي", "أحمد حمزي", "استاذ احمد", "مدير العميد", "مدير مكتب عميد كلية علوم وهندسة الحاسب الألي - أ/احمد حمزي"] },
-      "map_element_133": { name: "مدير الشؤون الإدارية والمالية", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["زين فارسي", "استاذ زين", "أ/زين فارسي", "مكتب مدير الشؤون الإدارية والمالية"] },
-      "map_element_136": { name: "استراحة طلاب الدراسات العليا", type: "خدمات خاصة"},
-      "map_element_140": { name: "رئيس قسم علوم الحاسب", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["ايمن نور", "أيمن نور", "دكتور ايمن", "د/ايمن نور", "مكتب رئيس قسم علوم الحاسب الألي"] },
-      "map_element_141": { name: "رئيس قسم الأمن السيبراني", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["ماهر الحربي", "دكتور ماهر", "د/ماهر الحربي", "امن سيبراني", "مكتب رئيس قسم الأمن السيبراني"] },
-      "map_element_151": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_152": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_153": { name: "مصعد 3", type: "خدمات عامة"},
-      "map_element_83": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
-      "map_element_155": { name: "درج 3", type: "خدمات عامة"},
-      "map_element_162": { name: "مكتب الدعم الأكاديمي للطلاب", type: "مكتب", email: "support@taibahu.edu.sa"},
-      "map_element_163": { name: "وكيل الشؤون الأكاديمية", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عمير بخش", "دكتور عمير", "د/عمير بخش", "مكتب وكيل كلية علوم وهندسة الحاسب الألي للشؤون الأكاديمية"] },
-      "map_element_164": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_165": { name: "مخزن", type: "خدمات خاصة"}
-    };
-
+      "map_element_1": { "name": "ممر رئيسي", "type": "مرر" },
+      "map_element_2": { "name": "قاعة 172FAA002", "type": "قاعة" },
+      "map_element_3": { "name": "قاعة 172FAA001", "type": "قاعة" },
+      "map_element_4": { "name": "المسرح الجامعي بأبيار علي", "type": "مسرح" },
+      "map_element_5": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_6": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_7": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_8": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_9": { "name": "قاعة 172FC005", "type": "قاعة" },
+      "map_element_10": { "name": "قاعة 172FC006", "type": "قاعة" },
+      "map_element_11": { "name": "قاعة 172FC008", "type": "قاعة" },
+      "map_element_12": { "name": "قاعة 172FC003", "type": "قاعة" },
+      "map_element_13": { "name": "قاعة 172FC004", "type": "قاعة" },
+      "map_element_14": { "name": "قاعة 172FC007", "type": "قاعة" },
+      "map_element_15": { "name": "قاعة 172FC009", "type": "قاعة" },
+      "map_element_16": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_17": { "name": "قاعة 172FC002", "type": "قاعة" },
+      "map_element_18": { "name": "قاعة 172FC011", "type": "قاعة" },
+      "map_element_19": { "name": "قاعة 172FC010", "type": "قاعة" },
+      "map_element_20": { "name": "قاعة 172FC001", "type": "قاعة" },
+      "map_element_21": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_22": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_23": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_24": { "name": "قاعة 172FB005", "type": "قاعة" },
+      "map_element_25": { "name": "قاعة 172FB006", "type": "قاعة" },
+      "map_element_26": { "name": "قاعة 172FB008", "type": "قاعة" },
+      "map_element_27": { "name": "قاعة 172FB003", "type": "قاعة" },
+      "map_element_28": { "name": "قاعة 172FB004", "type": "قاعة" },
+      "map_element_29": { "name": "قاعة 172FB007", "type": "قاعة" },
+      "map_element_30": { "name": "قاعة 172FB009", "type": "قاعة" },
+      "map_element_31": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_32": { "name": "قاعة 172FB002", "type": "قاعة" },
+      "map_element_33": { "name": "قاعة 172FB011", "type": "قاعة" },
+      "map_element_34": { "name": "قاعة 172FB010", "type": "قاعة" },
+      "map_element_35": { "name": "قاعة 172FB001", "type": "قاعة" },
+      "map_element_36": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_37": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_38": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_39": { "name": "قاعة 172FA005", "type": "قاعة" },
+      "map_element_40": { "name": "قاعة 172FA006", "type": "قاعة" },
+      "map_element_41": { "name": "قاعة 172FA008", "type": "قاعة" },
+      "map_element_42": { "name": "قاعة 172FA003", "type": "قاعة" },
+      "map_element_43": { "name": "قاعة 172FA004", "type": "قاعة" },
+      "map_element_44": { "name": "قاعة 172FA007", "type": "قاعة" },
+      "map_element_45": { "name": "قاعة 172FA009 - 172FAA003", "type": "قاعة" },
+      "map_element_46": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_47": { "name": "قاعة 172FA002", "type": "قاعة" },
+      "map_element_48": { "name": "قاعة 172FA011", "type": "قاعة" },
+      "map_element_49": { "name": "قاعة 172FA010", "type": "قاعة" },
+      "map_element_50": { "name": "قاعة 172FA001", "type": "قاعة" },
+      "map_element_51": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_52": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_53": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_58": { "name": "م/عادل الحجيلي", "type": "مكتب", "email": "aashejaili@taibahu.edu.sa", "keywords": ["عادل الحجيلي", "مكتب م/عادل الحجيلي", "محاضر عادل"] },
+      "map_element_82": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_83": { "name": " دورة مياه خاصة", "type": "خدمات خاصة" },
+      "map_element_84": { "name": "رئيس لجنة الإرشاد والجداول", "type": "مكتب", "email": "aemara@taibahu.edu.sa", "keywords": ["عبدالحميد عمارة", "دكتور عبدالحميد", "جدول", "جداول", "مرشد", "BIG BOSS", "البيق بوس", "موقع", "الحذف والاضافة", "حذف", "اضافة", "مادة", "مواد", "لجنة الارشاد", "الارشاد", "رئيس لجنة الارشاد - د/عبدالحميد عمارة", "مكتب رئيس لجنة الأرشاد"] },
+      "map_element_85": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_86": { "name": "مصعد", "type": "خدمات عامة" },
+      "map_element_87": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_99": { "name": "مدير مكتب وكيل الدراسات العليا", "type": "مكتب", "email": "nmohammadi@taibahu.edu.sa", "keywords": ["نواف المحمدي", "استاذ نواف", "أ/نواف المحمدي", "مدير مكتب وكيل الدراسات العليا"] },
+      "map_element_100": { "name": "وكيل الدراسات العليا", "type": "مكتب", "email": "fghaban@taibahu.edu.sa", "keywords": ["فهد غبان", "دكتور فهد", "د/فهد غبان", "وكيل كلية علوم وهندسة الحاسب الألي للدراسات العليا"] },
+      "map_element_101": { "name": " دورة مياه خاصة", "type": "خدمات خاصة" },
+      "map_element_107": { "name": "د/حمزة غندوره", "type": "مكتب", "email": "hghandorh@taibahu.edu.sa", "keywords": ["حمزة غندورة", "دكتور حمزة", "حمزه غندوره", "مكتب د/حمزة غندوره"] },
+      "map_element_108": { "name": "مكتب م.محمد الحربي وم.رجاء الحجيلي", "type": "مكتب", "email": "mnharbi@taibahu.edu.sa - rhejaili@taibahu.edu.sa", "keywords": ["محمد نهار الحربي", "ابو نهار", "محمد نهار راضي الحربي", "رجاء الحجيلي", "معسد محمد", "محاضر رجاء", "محمد الحربي", "مكتب م/محمد نهار الحربي - م/رجاء الحجيلي"] },
+      "map_element_115": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_116": { "name": "السندوتش الشامي", "type": "خدمات عامة", "keywords": ["الشامي", "اكل", "طعمية", "فلافل", "سنوتش", "بوفية", "بوفيه", "مطعم"] },
+      "map_element_117": { "name": "د/رشيق مرعي", "type": "مكتب", "email": "rmarie@taibahu.edu.sa", "keywords": ["رشيق مرعي", "دكتور رشيق", "مكتب د/رشيق مرعي"] },
+      "map_element_120": { "name": "مصعد", "type": "خدمات عامة" },
+      "map_element_121": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_element_122": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_123": { "name": "استراحة طالبات الدراسات العليا", "type": "خدمات خاصة" },
+      "map_element_124": { "name": "مصلى", "type": "خدمات عامة", "keywords": ["جامع", "مسجد"] },
+      "map_element_127": { "name": "قاعة اجتماعات العميد", "type": "قاعة اجتماعات" },
+      "map_element_128": { "name": "عميد كلية علوم وهندسة الحاسب", "type": "مكتب", "email": "ashowail@taibahu.edu.sa", "keywords": ["احمد شويل", "أحمد شويل", "مكتب عميد كلية علوم وهندسة الحاسب الألي", "العميد", "عميد", "دكتور احمد"] },
+      "map_element_131": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_132": { "name": "مدير مكتب العميد", "type": "مكتب", "email": "ahamzi@taibahu.edu.sa", "keywords": ["احمد حمزي", "أحمد حمزي", "استاذ احمد", "مدير العميد", "مدير مكتب عميد كلية علوم وهندسة الحاسب الألي - أ/احمد حمزي"] },
+      "map_element_133": { "name": "مدير الشؤون الإدارية والمالية", "type": "مكتب", "email": "zfarsi@taibahu.edu.sa", "keywords": ["زين فارسي", "استاذ زين", "أ/زين فارسي", "مكتب مدير الشؤون الإدارية والمالية"] },
+      "map_element_136": { "name": "استراحة طلاب الدراسات العليا", "type": "خدمات خاصة" },
+      "map_element_140": { "name": "رئيس قسم علوم الحاسب", "type": "مكتب", "email": "anoor@taibahu.edu.sa", "keywords": ["ايمن نور", "أيمن نور", "دكتور ايمن", "د/ايمن نور", "مكتب رئيس قسم علوم الحاسب الألي"] },
+      "map_element_141": { "name": "رئيس قسم الأمن السيبراني", "type": "مكتب", "email": "mharby@taibahu.edu.sa", "keywords": ["ماهر الحربي", "دكتور ماهر", "د/ماهر الحربي", "امن سيبراني", "مكتب رئيس قسم الأمن السيبراني"] },
+      "map_element_149": { "name": "مكتب الدعم الأكاديمي للطلاب", "type": "مكتب", "email": "aashehry@taibahu.edu.sa" },
+      "map_element_150": { "name": "وكيل الشؤون الأكاديمية", "type": "مكتب", "email": "oameerbakhsh@taibahu.edu.sa", "keywords": ["عمير بخش", "دكتور عمير", "د/عمير بخش", "مكتب وكيل كلية علوم وهندسة الحاسب الألي للشؤون الأكاديمية"] },
+      "map_element_151": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_152": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_153": { "name": " مصعد", "type": "خدمات عامة" },
+      "map_element_154": { "name": " دورة مياه خاصة", "type": "خدمات خاصة" },
+      "map_element_155": { "name": "درج", "type": "خدمات عامة" },
+      "map_element_164": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_element_165": { "name": "مخزن", "type": "خدمات خاصة" }
+    }
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const bottomSheet = document.getElementById('bottomSheet');
     const overlay = document.getElementById('overlay');
@@ -1285,8 +1287,9 @@ function initMapPosition() {
         let groupName = null;
         if (term === "wc") groupName = "WC";
         else if (term === "مصعد" || term === "مصاعد") groupName = "المصاعد";
-        else if (term === "درج" || term === "سلالم" || term === "درج جناح") groupName = "السلالم";
+        else if (term === "درج" || term === "سلالم") groupName = "السلالم";
         else if (term === "مخزن" || term === "مستودع") groupName = "المخازن";
+        
 
         const groupedMatches = {};
         matches.forEach(match => {

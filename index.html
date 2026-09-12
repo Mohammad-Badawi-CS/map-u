@@ -69,7 +69,6 @@
       color: #fff;
     }
 
-    /* تعديلات مربع البحث والاقتراحات */
     .search-container {
       position: relative;
       width: 100%;
@@ -1004,6 +1003,49 @@
       searchMarker.style.display = 'block';
     }
 
+    // =====================================
+    // دالة التقريب (Zoom) الديناميكي
+    // =====================================
+    function zoomToUnit(unit) {
+      const vpWidth = viewport.clientWidth;
+      const vpHeight = viewport.clientHeight;
+      
+      // الحصول على إحداثيات العنصر الحالي على الشاشة
+      const unitRect = unit.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
+      
+      // حساب مركز العنصر بالنسبة لمساحة الخريطة الأصلية الغير مكبرة
+      const unitCx = (unitRect.left + (unitRect.width / 2) - wrapperRect.left) / scale;
+      const unitCy = (unitRect.top + (unitRect.height / 2) - wrapperRect.top) / scale;
+      
+      // تحديد نسبة تكبير مريحة (أقل بقليل للموبايل لتناسب الشاشة)
+      const targetScale = window.innerWidth <= 950 ? 1.2 : 1.5;
+      scale = targetScale;
+      
+      // حساب إزاحة الخريطة الجديدة لوضع العنصر في منتصف الشاشة
+      let targetX = (vpWidth / 2) - (unitCx * scale);
+      let targetY = (vpHeight / 2) - (unitCy * scale);
+      
+      const dims = getMapDimensions();
+      const mapWidth = dims.width * scale;
+      const mapHeight = dims.height * scale;
+      const marginX = vpWidth * 0.5; 
+      const marginY = vpHeight * 0.5;
+      
+      // تطبيق الحدود لمنع خروج الخريطة بشكل كبير
+      pointX = Math.min(marginX, Math.max(targetX, -mapWidth + marginX));
+      pointY = Math.min(marginY, Math.max(targetY, -mapHeight + marginY));
+      
+      // إضافة حركة تنقل (Animation) سلسة مدتها نصف ثانية
+      wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+      wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+      
+      // إزالة التأثير بعد الانتهاء للحفاظ على سلاسة السحب اليدوي
+      setTimeout(() => {
+        wrapper.style.transition = '';
+      }, 500);
+    }
+
     units.forEach(unit => {
       unit.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1011,9 +1053,6 @@
       });
     });
 
-    // =====================================
-    // ميزة البحث الذكي مع الاقتراحات
-    // =====================================
     const searchInput = document.getElementById('searchInput');
     const suggestionsList = document.getElementById('suggestionsList');
 
@@ -1035,7 +1074,6 @@
         return;
       }
 
-      // تصفية الوحدات بناءً على اسم أو رقم المعرف، وجلب نتيجتين كحد أقصى (slice 0,2)
       const matches = units.filter(unit => {
         const name = (unit.getAttribute('data-name') || '').toLowerCase();
         const id = (unit.getAttribute('data-id') || '').toLowerCase();
@@ -1062,6 +1100,7 @@
             searchInput.value = match.getAttribute('data-name');
             suggestionsList.classList.remove('active');
             selectUnit(match);
+            zoomToUnit(match); // التفعيل الخاص بالتقريب الذكي عند النقر على خيار البحث
           });
           
           suggestionsList.appendChild(li);
@@ -1072,7 +1111,6 @@
       }
     });
 
-    // إغلاق قائمة الاقتراحات عند النقر خارجها
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.search-container')) {
         suggestionsList.classList.remove('active');

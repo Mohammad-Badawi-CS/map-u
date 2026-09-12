@@ -138,6 +138,54 @@
       white-space: nowrap;
     }
 
+    /* تنسيقات القوائم السريعة (المكاتب والخدمات) */
+    .quick-links-container {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .quick-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .category-title {
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+    .chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      /* إخفاء شريط التمرير */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .chips-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .chip {
+      background: rgba(43, 48, 54, 0.6);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 16px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      outline: none;
+    }
+    .chip:hover {
+      background: rgba(116, 210, 232, 0.15);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
     .selected-info {
       background: #16191d;
       border: 1px solid var(--border-color);
@@ -205,7 +253,6 @@
       transform: rotate(180deg);
     }
 
-    /* تأثيرات الماوس للعناصر القابلة للنقر فقط */
     .unit-clickable {
       cursor: pointer;
       transition: opacity 0.15s ease, filter 0.15s ease;
@@ -664,6 +711,35 @@
           <h3 id="infoNameMobile">لم يتم اختيار عنصر</h3>
           <button class="details-btn" id="mobileMenuBtn">التفاصيل ☰</button>
         </div>
+
+        <!-- القوائم السريعة تظهر تحت البحث في الحاسب / أفقياً، وتحت التفاصيل عمودياً -->
+        <div class="quick-links-container">
+          <!-- القائمة الأولى: أهم المكاتب -->
+          <div class="quick-list">
+            <div class="category-title">أهم المكاتب</div>
+            <div class="chips-scroll">
+              <button class="chip auto-select" data-search="عميد كلية">مكتب العميد</button>
+              <button class="chip auto-select" data-search="رئيس قسم علوم الحاسب">علوم الحاسب</button>
+              <button class="chip auto-select" data-search="نظم المعلومات">نظم المعلومات</button>
+              <button class="chip auto-select" data-search="هندسة الحاسب">هندسة الحاسب</button>
+              <button class="chip auto-select" data-search="الأمن السيبراني">الأمن السيبراني</button>
+              <button class="chip auto-select" data-search="الذكاء الاصطناعي">الذكاء الاصطناعي</button>
+              <button class="chip auto-select" data-search="لجنة الإرشاد">لجنة الإرشاد والجداول</button>
+            </div>
+          </div>
+          <!-- القائمة الثانية: الخدمات العامة -->
+          <div class="quick-list">
+            <div class="category-title">الخدمات العامة</div>
+            <div class="chips-scroll">
+              <button class="chip" data-search="مقهى">☕ مقهى</button>
+              <button class="chip" data-search="مطعم">🍽️ مطعم</button>
+              <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
+              <button class="chip" data-search="مصعد">🛗 مصعد</button>
+              <button class="chip" data-search="درج">🚶 درج</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="bottom-sheet" id="bottomSheet">
@@ -677,7 +753,6 @@
             <span id="infoId">—</span>
           </div>
           
-          <!-- خانة الإيميل الجامعي الجديدة مضاف لها display:none لتكون مخفية افتراضياً -->
           <div class="info-detail" id="infoEmailRow" style="display: none;">
             <span>الإيميل الجامعي:</span>
             <span id="infoEmail">—</span>
@@ -783,6 +858,8 @@
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const bottomSheet = document.getElementById('bottomSheet');
     const overlay = document.getElementById('overlay');
+    const searchInput = document.getElementById('searchInput');
+    const suggestionsList = document.getElementById('suggestionsList');
 
     function toggleMenu() {
       bottomSheet.classList.toggle('open');
@@ -960,7 +1037,7 @@
       if (customData) {
         el.setAttribute('data-name', customData.name);
         el.setAttribute('data-type', customData.type);
-        if (customData.email) el.setAttribute('data-email', customData.email); // إضافة بيانات الإيميل
+        if (customData.email) el.setAttribute('data-email', customData.email);
         if (customData.keywords) {
           el.setAttribute('data-keywords', customData.keywords.join(' '));
         }
@@ -1013,23 +1090,23 @@
         infoEmailRow.style.display = 'none';
       }
 
-      // 1. مسح الخطوط من أي مكتب محدد سابقاً
+      // مسح الخطوط من أي مكتب محدد سابقاً
       let oldOverlay = document.getElementById('selectionOverlay');
       if (oldOverlay) oldOverlay.remove();
 
-      // 2. إنشاء نسخة مطابقة هندسياً لشكل المكتب المحدد
+      // إنشاء نسخة مطابقة هندسياً لشكل المكتب المحدد
       let overlayClone = unit.cloneNode(true);
       overlayClone.id = 'selectionOverlay';
       
-      // 3. مسح كلاسات الـ CSS القديمة لكي لا تمنع الخطوط من الظهور
+      // مسح كلاسات الـ CSS القديمة لكي لا تمنع الخطوط من الظهور
       overlayClone.removeAttribute('class'); 
       
-      // 4. تطبيق الخطوط المائلة ومنع التفاعل معها بالماوس
+      // تطبيق الخطوط المائلة ومنع التفاعل معها بالماوس
       overlayClone.setAttribute('fill', 'url(#diagonalHatch)');
       overlayClone.setAttribute('stroke', 'none'); 
       overlayClone.style.pointerEvents = 'none';
 
-      // 5. وضع الخطوط فوق المكتب الأصلي
+      // وضع الخطوط فوق المكتب الأصلي
       unit.parentNode.appendChild(overlayClone);
     }
 
@@ -1076,9 +1153,6 @@
       }
     });
 
-    const searchInput = document.getElementById('searchInput');
-    const suggestionsList = document.getElementById('suggestionsList');
-
     searchInput.addEventListener('input', (e) => {
       const term = e.target.value.trim().toLowerCase();
       suggestionsList.innerHTML = '';
@@ -1092,7 +1166,7 @@
           infoNameDesktop.textContent = 'لم يتم اختيار عنصر';
           infoType.textContent = 'اختر عنصراً من الخريطة';
           infoId.textContent = '—';
-          infoEmailRow.style.display = 'none'; // إخفاء الإيميل عند مسح البحث
+          infoEmailRow.style.display = 'none';
           
           const oldOverlay = document.getElementById('selectionOverlay');
           if (oldOverlay) oldOverlay.remove();
@@ -1141,6 +1215,28 @@
       } else {
         suggestionsList.classList.remove('active');
       }
+    });
+
+    // تفعيل أزرار القوائم السريعة (Chips)
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const searchTerm = chip.getAttribute('data-search');
+        searchInput.value = searchTerm;
+        
+        // إطلاق حدث الإدخال لتشغيل بحث الخريطة
+        searchInput.dispatchEvent(new Event('input'));
+        
+        // بالنسبة للمكاتب المهمة نقوم بتحديد الخيار الأول تلقائياً للتسهيل
+        setTimeout(() => {
+          const suggestions = suggestionsList.querySelectorAll('li');
+          if (suggestions.length > 0 && chip.classList.contains('auto-select')) {
+             suggestions[0].click();
+          } else if (suggestions.length === 0) {
+             suggestionsList.classList.remove('active');
+          }
+        }, 50);
+      });
     });
 
     document.addEventListener('click', (e) => {

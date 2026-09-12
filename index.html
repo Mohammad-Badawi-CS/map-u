@@ -32,27 +32,6 @@
       position: relative;
     }
 
-    /* زر إظهار القائمة للجوال */
-    .mobile-menu-btn {
-      display: none;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 30;
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-
-    .mobile-menu-btn:hover {
-      border-color: var(--accent-cyan);
-    }
-
     /* خلفية التظليل للجوال */
     .overlay {
       display: none;
@@ -61,11 +40,14 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
       z-index: 15;
     }
+    .overlay.active { display: block; }
 
-    /* لوحة التحكم الجانبية */
+    /* =========================================
+       لوحة التحكم (الشريط الجانبي / شريط الجوال)
+       ========================================= */
     .sidebar {
       width: 360px;
       min-width: 320px;
@@ -73,14 +55,19 @@
       border-left: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      padding: 24px;
-      gap: 20px;
       z-index: 20;
       box-shadow: -4px 0 20px rgba(0, 0, 0, 0.4);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .sidebar h2 {
+    .sidebar-content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .desktop-header h2 {
       font-size: 1.25rem;
       font-weight: 700;
       color: #fff;
@@ -96,11 +83,11 @@
       font-size: 0.9rem;
       outline: none;
     }
-
     .search-box input:focus {
       border-color: var(--accent-cyan);
     }
 
+    /* تفاصيل العنصر المحدد */
     .selected-info {
       background: #16191d;
       border: 1px solid var(--border-color);
@@ -131,11 +118,14 @@
       border-bottom: 1px solid #28203F;
       padding-bottom: 6px;
     }
-
     .info-detail span:last-child {
       color: #fff;
       font-weight: 500;
     }
+
+    /* إعدادات العناصر الخاصة بالجوال (مخفية في الكمبيوتر) */
+    .mobile-only-row { display: none; }
+    .desktop-only-name { display: block; font-size: 1.15rem; color:#fff; }
 
     /* منطقة عرض الخريطة */
     .viewport {
@@ -146,11 +136,9 @@
       overflow: hidden;
       cursor: grab;
       touch-action: none;
+      z-index: 1;
     }
-
-    .viewport:active {
-      cursor: grabbing;
-    }
+    .viewport:active { cursor: grabbing; }
 
     #map-wrapper {
       position: absolute;
@@ -173,50 +161,108 @@
       cursor: pointer;
       transition: opacity 0.15s ease, filter 0.15s ease;
     }
-
     #map-wrapper svg [data-id] {
       cursor: pointer;
       transition: opacity 0.15s ease, filter 0.15s ease;
     }
-
     #map-wrapper svg [data-id]:hover, .unit-clickable:hover {
       filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
       opacity: 0.9;
     }
-
     .selected-active {
       filter: drop-shadow(0 0 10px var(--accent-m)) !important;
       stroke: #9e70ba !important;
-      stroke-width: 5px !important;
+      stroke-width: 8px !important;
     }
 
     /* -------------------------------------
-        تخصيص التجاوب لجميع وضعيات الجوال
-        ------------------------------------- */
+       تخصيص التجاوب لجميع وضعيات الجوال
+       ------------------------------------- */
     @media (max-width: 950px) {
-      .mobile-menu-btn {
-        display: block;
-      }
-      
+      /* إخفاء خلفية الشريط وتفريغه ليصبح شفاف فوق الخريطة */
       .sidebar {
-        position: absolute;
-        top: auto;
-        bottom: 0;
+        position: fixed;
+        top: 0;
         left: 0;
-        right: 0;
-        height: auto;
-        max-height: 55vh;
         width: 100%;
-        max-width: 100%;
-        transform: translateY(100%);
-        border-left: none;
-        border-top: 1px solid var(--border-color);
-        border-radius: 20px 20px 0 0;
-        padding: 24px 16px 16px;
-        gap: 12px;
+        height: 100%;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        pointer-events: none; /* يسمح بالنقر على الخريطة في المساحات الفارغة */
       }
       
-      .sidebar::before {
+      .sidebar-content {
+        padding: 0;
+        gap: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+      }
+      
+      .desktop-header { display: none; }
+      
+      /* اللوحة العلوية (شريط البحث والاسم) */
+      .top-panel {
+        background: var(--panel-bg);
+        padding: 16px;
+        pointer-events: auto; /* إعادة تفعيل النقر داخل اللوحة */
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      }
+      
+      .mobile-only-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+      }
+      
+      .desktop-only-name { display: none; }
+      
+      #infoNameMobile {
+        font-size: 1.1rem;
+        color: #fff;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70%;
+      }
+
+      .details-btn {
+        background: var(--accent-cyan);
+        color: #000;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(116, 210, 232, 0.3);
+      }
+
+      /* القائمة السفلية للتفاصيل */
+      .bottom-sheet {
+        background: var(--panel-bg);
+        padding: 24px 16px 16px;
+        pointer-events: auto;
+        border-radius: 20px 20px 0 0;
+        border-top: 1px solid var(--border-color);
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+      }
+
+      .bottom-sheet.open {
+        transform: translateY(0);
+      }
+
+      .bottom-sheet::before {
         content: "";
         width: 40px;
         height: 4px;
@@ -227,49 +273,39 @@
         left: 50%;
         transform: translateX(-50%);
       }
-
-      .sidebar.open { transform: translateY(0); }
-      .overlay.active { display: block; }
-      .sidebar h2 { font-size: 1.1rem; }
-      .selected-info { padding: 12px; overflow-y: auto; gap: 8px;}
-      .info-detail { padding-bottom: 4px; }
+      
+      .selected-info {
+        background: transparent;
+        border: none;
+        padding: 0;
+        gap: 12px;
+      }
     }
 
-    /* الجوال: الوضع العمودي (Portrait) */
     @media (max-width: 950px) and (orientation: portrait) {
-      #map-wrapper {
-        width: 749.65px;
-        height: 1690.73px;
-      }
-      #map-wrapper svg {
-        transform: rotate(270deg);
-      }
+      #map-wrapper { width: 749.65px; height: 1690.73px; }
+      #map-wrapper svg { transform: rotate(270deg); }
     }
-
-    /* الجوال: الوضع الأفقي (Landscape) */
     @media (max-width: 950px) and (orientation: landscape) {
-      #map-wrapper {
-        width: 1690.73px;
-        height: 749.65px;
-      }
-      #map-wrapper svg {
-        transform: rotate(180deg);
-      }
+      #map-wrapper { width: 1690.73px; height: 749.65px; }
+      #map-wrapper svg { transform: rotate(180deg); }
     }
   </style>
 </head>
 <body>
 
-  <button class="mobile-menu-btn" id="mobileMenuBtn">☰ تفاصيل الوحدة</button>
+  <!-- التظليل يظهر فقط عندما تفتح قائمة التفاصيل في الجوال -->
   <div class="overlay" id="overlay"></div>
 
+  <!-- الخريطة -->
   <div class="viewport" id="viewport">
     <div id="map-wrapper">
       <svg id="Layer_6" data-name="Layer 6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1690.73 749.65">
         <defs>
-          <style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#273040;}.cls-4{fill:#47415B;}.cls-5{fill:#19212D;}.cls-6{fill:#3F4E66;}.cls-7{fill:#28203F;}.cls-11,.cls-8{fill:#323c4c;}.cls-9{fill:#0C0D11;}.cls-10{fill:#597699;}.cls-11{stroke:#fff;stroke-miterlimit:10;stroke-width:0.5px;}.cls-12{fill:#333;}.cls-13{fill:#597699;}.cls-14{fill:#28203F;}</style>
+          <style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#273040;}.cls-4{fill:#47415B;}.cls-5{fill:#19212D;}.cls-6{fill:#3F4E66;}.cls-7{fill:#45386e;}.cls-11,.cls-8{fill:#323c4c;}.cls-9{fill:#0C0D11;}.cls-10{fill:#597699;}.cls-11{stroke:#fff;stroke-miterlimit:10;stroke-width:0.5px;}.cls-12{fill:#333;}.cls-13{fill:#597699;}.cls-14{fill:#28203F;}</style>
         </defs>
-<path class="cls-1" d="M1687.56,207.09C1648.63,89.69,1538,5,1407.5,5H1167V45h-40V85h-40v40h-40V294H454V85H374V45H334V5H81.35c-16,0-26.17.4-44.81,9.4a48.27,48.27,0,0,0-8.12,6A45,45,0,0,0,21.86,28C15.84,36.59,12,51.64,12,63c0,6,0,12,0,18V237h93v87h18.89v25.57H56.47L42.93,359.84l13.61,12.25h67.35v27.27H105.24v.13l-.14,30.32H56.53l-10,9.08L43.18,442l3.39,3.68,10,10.85H105.1l.05,10.5.09,21.73h18.52v28H36.6v16.4h87.16v45H86.59v29.34h37.3v22.33h-.13v.1l8.53,7.63c.46,1.59,1,3.13,1.58,4.65a57.1,57.1,0,0,0,6.7,12.57,50.38,50.38,0,0,0,9.76,10.39,44.33,44.33,0,0,0,11.31,6.6A40.65,40.65,0,0,0,173,674.39l.32,0v-.21l.26.24h24.81V578.09h-56V488.73h.13v-.07h18.29v-30.3h69.71v-26.7H160.83v-32.3H142.41V372.09h28.1L184,361.81l-13.51-12.18h-27.9V324h239v75.36H362.89V421.7h18.65v44.68H362.89v22.35h18.65v89.36h-37.3v29.34h37.3v22.33h-.13v.1l26.39,23.63,23.14,20.72.25.24H456V578.09H400.06V488.73H418.7V399.36H400.06V324H639v75.36H620.3V421.7H639v44.68H620.3v22.35H639v89.36H601.66v29.34H639v22.33h-.13v.1l26.4,23.63,23.13,20.72.26.24h24.8V578.09H657.47V488.73h18.65V399.36H657.47V324H898.23v75.36H879.59V421.7h18.64v44.68H879.59v22.35h18.64v89.36H860.94v29.34h37.29v22.33h-.12v.1l26.39,23.63,23.14,20.72.26.24h24.8V578.09h-56V488.73h18.66V399.36H916.75V324h130.07L1087,362l-40,38.2V613h201l41.5,41.5L1333,611l46.5,46.5V324h-89.59a120,120,0,1,1,237.59-24.06A119.54,119.54,0,0,1,1517,349h65.46v50h40V359h80V300A294.45,294.45,0,0,0,1687.56,207.09Zm-1583-91.69v-30h34.93v30ZM140,197H105V167h35ZM294,85h32v30H294Zm-96.51,0h34.93v30H197.49ZM157,294c0-22.09,9.74-43.84,25.48-60.07S220,207,244,207c48.05,0,87,42.82,87,87Zm217-97H342V167h32Zm833,97h-80V244.5h80Zm0-89h-40V165h40ZM1327,85h-40V45h40Zm119.68,6s-20.68-4-40-3.6V45.9s29.3.1,47.74,4.4Zm108.14,57.45A241.77,241.77,0,0,0,1523,122.9l22.82-34.7a234.49,234.49,0,0,1,38,30.56Zm60.47,112.8s-4.29-23.25-12-41l38.42-15.65a213.53,213.53,0,0,1,14,49.1Z" transform="translate(-12 -5)"/>       <path class="cls-2" d="M1156.81,324.5,1193.27,358,1103.8,443.5h-17.3v50h17.31l43.69,39.74V612.5h-100V400.41l79.7-75.91h29.61m.19-.5h-30l-80,76.2V613h101V533l-44-40h-17V444h17l90-86-37-34Z" transform="translate(-12 -4.35)"/>
+        <path class="cls-1" d="M1687.56,207.09C1648.63,89.69,1538,5,1407.5,5H1167V45h-40V85h-40v40h-40V294H454V85H374V45H334V5H81.35c-16,0-26.17.4-44.81,9.4a48.27,48.27,0,0,0-8.12,6A45,45,0,0,0,21.86,28C15.84,36.59,12,51.64,12,63c0,6,0,12,0,18V237h93v87h18.89v25.57H56.47L42.93,359.84l13.61,12.25h67.35v27.27H105.24v.13l-.14,30.32H56.53l-10,9.08L43.18,442l3.39,3.68,10,10.85H105.1l.05,10.5.09,21.73h18.52v28H36.6v16.4h87.16v45H86.59v29.34h37.3v22.33h-.13v.1l8.53,7.63c.46,1.59,1,3.13,1.58,4.65a57.1,57.1,0,0,0,6.7,12.57,50.38,50.38,0,0,0,9.76,10.39,44.33,44.33,0,0,0,11.31,6.6A40.65,40.65,0,0,0,173,674.39l.32,0v-.21l.26.24h24.81V578.09h-56V488.73h.13v-.07h18.29v-30.3h69.71v-26.7H160.83v-32.3H142.41V372.09h28.1L184,361.81l-13.51-12.18h-27.9V324h239v75.36H362.89V421.7h18.65v44.68H362.89v22.35h18.65v89.36h-37.3v29.34h37.3v22.33h-.13v.1l26.39,23.63,23.14,20.72.25.24H456V578.09H400.06V488.73H418.7V399.36H400.06V324H639v75.36H620.3V421.7H639v44.68H620.3v22.35H639v89.36H601.66v29.34H639v22.33h-.13v.1l26.4,23.63,23.13,20.72.26.24h24.8V578.09H657.47V488.73h18.65V399.36H657.47V324H898.23v75.36H879.59V421.7h18.64v44.68H879.59v22.35h18.64v89.36H860.94v29.34h37.29v22.33h-.12v.1l26.39,23.63,23.14,20.72.26.24h24.8V578.09h-56V488.73h18.66V399.36H916.75V324h130.07L1087,362l-40,38.2V613h201l41.5,41.5L1333,611l46.5,46.5V324h-89.59a120,120,0,1,1,237.59-24.06A119.54,119.54,0,0,1,1517,349h65.46v50h40V359h80V300A294.45,294.45,0,0,0,1687.56,207.09Zm-1583-91.69v-30h34.93v30ZM140,197H105V167h35ZM294,85h32v30H294Zm-96.51,0h34.93v30H197.49ZM157,294c0-22.09,9.74-43.84,25.48-60.07S220,207,244,207c48.05,0,87,42.82,87,87Zm217-97H342V167h32Zm833,97h-80V244.5h80Zm0-89h-40V165h40ZM1327,85h-40V45h40Zm119.68,6s-20.68-4-40-3.6V45.9s29.3.1,47.74,4.4Zm108.14,57.45A241.77,241.77,0,0,0,1523,122.9l22.82-34.7a234.49,234.49,0,0,1,38,30.56Zm60.47,112.8s-4.29-23.25-12-41l38.42-15.65a213.53,213.53,0,0,1,14,49.1Z" transform="translate(-12 -5)"/>
+        <path class="cls-2" d="M1156.81,324.5,1193.27,358,1103.8,443.5h-17.3v50h17.31l43.69,39.74V612.5h-100V400.41l79.7-75.91h29.61m.19-.5h-30l-80,76.2V613h101V533l-44-40h-17V444h17l90-86-37-34Z" transform="translate(-12 -4.35)"/>
         <polygon class="cls-3" points="1062.25 439.4 1062.25 390.94 1109.87 345.91 1150.59 383.32 1091.9 439.4 1062.25 439.4"/>
         <path class="cls-2" d="M1121.87,350.6l40.35,37.07L1103.8,443.5h-29.3V395.4l47.37-44.8m0-.68L1074,395.18V444h30l59-56.33-41.08-37.75Z" transform="translate(-12 -4.35)"/>
         <polygon class="cls-3" points="1035.25 589.9 1035.25 488.9 1091.92 488.9 1135.75 528.76 1135.75 589.9 1035.25 589.9"/>
@@ -538,30 +574,50 @@
         <path class="cls-12" d="M1618.17,283.19c.53,6.68.66,10.13.66,16.88H1624c0-3.7,0-5.59-.19-9.29l36.31-1.56c-.16-3.75-.27-5.62-.57-9.34Z" transform="translate(-12 -4.35)"/>
         <path class="cls-12" d="M1557.57,300.07a128.09,128.09,0,0,0-1.85-23.74l41-6.54a176.48,176.48,0,0,1,2.37,30.28Z" transform="translate(-12 -4.35)"/>
         <rect class="cls-13" x="1621" y="295.65" width="24" height="40"/>
-        <polygon class="cls-14" points="1645 295.65 1645 285.65 1645 285.01 1690.67 283.06 1690.67 335.65 1645 335.65 1645 295.65"/>
+        <polygon class="cls-7" points="1645 295.65 1645 285.65 1645 285.01 1690.67 283.06 1690.67 335.65 1645 335.65 1645 295.65"/>
         <rect class="cls-6" x="1570.5" y="354.65" width="40" height="40"/>
       </svg>
     </div>
   </div>
 
+  <!-- لوحة التحكم / الجوال -->
   <aside class="sidebar" id="sidebar">
-    <div>
-      <h2>مستكشف المخطط</h2>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">انقر على أي وحدة أو غرفة لعرض تفاصيلها</p>
-    </div>
-
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="بحث باسم الوحدة...">
-    </div>
-
-    <div class="selected-info" id="infoPanel">
-      <span class="info-badge" id="infoType">اختر عنصراً من الخريطة</span>
-      <h3 id="infoName" style="font-size: 1.15rem; color:#fff;">لم يتم اختيار عنصر</h3>
+    <div class="sidebar-content">
       
-      <div class="info-detail">
-        <span>المعرف البرمجي:</span>
-        <span id="infoId">—</span>
+      <!-- يظهر في الكمبيوتر فقط -->
+      <div class="desktop-header">
+        <h2>مستكشف المخطط</h2>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">انقر على أي وحدة أو غرفة لعرض تفاصيلها</p>
       </div>
+
+      <!-- اللوحة العلوية (ثابتة بالأعلى في الجوال) -->
+      <div class="top-panel">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="بحث باسم الوحدة...">
+        </div>
+        
+        <!-- صف الاسم وزر التفاصيل يظهر فقط في الجوال -->
+        <div class="mobile-only-row">
+          <h3 id="infoNameMobile">لم يتم اختيار عنصر</h3>
+          <button class="details-btn" id="mobileMenuBtn">التفاصيل ☰</button>
+        </div>
+      </div>
+
+      <!-- القائمة السفلية في الجوال / تكملة الشريط في الكمبيوتر -->
+      <div class="bottom-sheet" id="bottomSheet">
+        <div class="selected-info">
+          <span class="info-badge" id="infoType">اختر عنصراً من الخريطة</span>
+          
+          <!-- الاسم للكمبيوتر فقط -->
+          <h3 id="infoNameDesktop" class="desktop-only-name">لم يتم اختيار عنصر</h3>
+          
+          <div class="info-detail">
+            <span>المعرف البرمجي:</span>
+            <span id="infoId">—</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </aside>
 
@@ -571,7 +627,6 @@
     // ==========================================
     const customUnits = {
       "map_element_1": { name: "ممر رئيسي", type: "مرر"},
-      "map_element_2": { name: "ممر جناح FAA", type: "مرر"},
       "map_element_2": { name: "قاعة 172FAA002", type: "قاعة"},
       "map_element_3": { name: "قاعة 172FAA001", type: "قاعة"},
       "map_element_4": { name: "المسرح الجامعي بأبيار علي", type: "مسرح" },
@@ -625,53 +680,51 @@
       "map_element_52": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_53": { name: "دورة مياه", type: "خدمات عامة"},
       "map_element_58": { name: "مكتب م/عادل الحجيلي", type: "مكتب"},
-
-      "map_element_83": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_82": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_87": { name: "دورة مياه", type: "خدمات عامة"},
+      "map_element_83": { name: "دورة مياه", type: "خدمات عامة"},
       "map_element_84": { name: "مكتب رئيس لجنة الأرشاد - د/عبدالحميد عمارة", type: "مكتب" },
       "map_element_85": { name: "درج 1", type: "خدمات عامة"},
+      "map_element_87": { name: "دورة مياه", type: "خدمات عامة"},
       "map_element_90": { name: "مصعد 1", type: "خدمات عامة"},
-      "map_element_83": { name: "دورة مياه", type: "خدمات عامة"},
       "map_element_99": { name: "مدير مكتب وكيل الدراسات العليا - أ/نواف المحمدي", type: "مكتب"},
       "map_element_100": { name: "مكتب وكيل كلية علوم وهندسة الحاسب الألي للدراسات العليا - د/فهد غبان", type: "مكتب"},
-      "map_element_107": { name: "دورة مياه", type: "خدمات خاصة"},
       "map_element_107": { name: "مكتب د/حمزة غندوره", type: "مكتب"},
       "map_element_108": { name: "مكتب م/محمد نهار الحربي - م/رجاء الحجيلي", type: "مكتب"},
-      "map_element_122": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_115": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_117": { name: "مكتب د/رشيق مرعي", type: "مكتب"},
       "map_element_120": { name: "مصعد 2", type: "خدمات عامة"},
-      "map_element_128": { name: "مكتب عميد كلية علوم وهندسة الحاسب الألي - د/احمد شويل", type: "مكتب"},
       "map_element_121": { name: "دورة مياه", type: "خدمات عامة"},
       "map_element_122": { name: "درج 2", type: "خدمات عامة"},
       "map_element_123": { name: "استراحة طالبات الدراسات العليا", type: "خدمات خاصة"},
       "map_element_124": { name: "مصلى", type: "خدمات عامة"},
-            "map_element_131": { name: "مخزن", type: "خدمات خاصة"},
-
       "map_element_127": { name: "قاعة اجتماعات العميد", type: "قاعة اجتماعات"},
-      "map_element_151": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_152": { name: "مخزن", type: "خدمات خاصة"},
+      "map_element_128": { name: "مكتب عميد كلية علوم وهندسة الحاسب الألي - د/احمد شويل", type: "مكتب"},
+      "map_element_131": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_132": { name: "مدير مكتب عميد كلية علوم وهندسة الحاسب الألي - أ/احمد حمزي", type: "مكتب"},
       "map_element_133": { name: "مكتب مدير الشؤون الإدارية والمالية - أ/زين فارسي", type: "مكتب"},
       "map_element_136": { name: "استراحة طلاب الدراسات العليا", type: "خدمات خاصة"},
       "map_element_140": { name: "مكتب رئيس قسم علوم الحاسب الألي - د/ايمن نور", type: "مكتب"},
       "map_element_141": { name: "مكتب رئيس قسم الأمن السيبراني - د/ماهر الحربي", type: "مكتب"},
-      "map_element_162": { name: "مكتب الدعم الأكاديمي للطلاب", type: "مكتب"}, //d system
-      "map_element_163": { name: "مكتب وكيل كلية علوم وهندسة الحاسب الألي للشؤون الأكاديمية - د/عمير بخش", type: "مكتب"},
-      "map_element_164": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_165": { name: "مخزن", type: "خدمات خاصة"},
+      "map_element_151": { name: "مخزن", type: "خدمات خاصة"},
+      "map_element_152": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_153": { name: "مصعد 3", type: "خدمات عامة"},
       "map_element_154": { name: "دورة مياه", type: "خدمات خاصة"},
-      "map_element_155": { name: "درج 3", type: "خدمات عامة"}
+      "map_element_155": { name: "درج 3", type: "خدمات عامة"},
+      "map_element_162": { name: "مكتب الدعم الأكاديمي للطلاب", type: "مكتب"},
+      "map_element_163": { name: "مكتب وكيل كلية علوم وهندسة الحاسب الألي للشؤون الأكاديمية - د/عمير بخش", type: "مكتب"},
+      "map_element_164": { name: "مخزن", type: "خدمات خاصة"},
+      "map_element_165": { name: "مخزن", type: "خدمات خاصة"}
     };
 
+    // ==========================================
+    // التحكم بالواجهة والتفاعلات
+    // ==========================================
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const sidebar = document.getElementById('sidebar');
+    const bottomSheet = document.getElementById('bottomSheet');
     const overlay = document.getElementById('overlay');
 
     function toggleMenu() {
-      sidebar.classList.toggle('open');
+      bottomSheet.classList.toggle('open');
       overlay.classList.toggle('active');
     }
 
@@ -679,7 +732,7 @@
     overlay.addEventListener('click', toggleMenu);
 
     // ==========================================
-    // التكبير والتصغير والتحريك (Pan & Pinch-to-Zoom)
+    // التكبير والتصغير والتحريك
     // ==========================================
     const viewport = document.getElementById('viewport');
     const wrapper = document.getElementById('map-wrapper');
@@ -694,7 +747,6 @@
     let startY = 0;
     let lastTouchDistance = null;
 
-    // دالة لاستخراج الأبعاد
     function getMapDimensions() {
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
       return {
@@ -703,48 +755,39 @@
       };
     }
 
-    // دالة لتطبيق التحويل وتأمين حدود السحب (Limits)
     function setTransform() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
       const dims = getMapDimensions();
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
-
       const marginX = vpWidth * 0.5; 
       const marginY = vpHeight * 0.5;
-
+      
       pointX = Math.min(marginX, Math.max(pointX, -mapWidth + marginX));
       pointY = Math.min(marginY, Math.max(pointY, -mapHeight + marginY));
-
+      
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 
-    // تجهيز التوسيط الأولي
     function initMapPosition() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
       if (vpWidth === 0 || vpHeight === 0) return;
-
       const dims = getMapDimensions();
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
-
-      // حساب الحجم عشان تملأ الخريطة الشاشة بشكل مناسب 
+      
       if (isMobilePortrait) {
         scale = (vpWidth / dims.width) * 0.95;
       } else {
         scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
       }
-
+      
       scale = Math.min(Math.max(0.15, scale), 4);
-
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
-
-      // التوسيط في المنتصف 100% بدون أي إزاحات جانبية
       pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
-
       setTransform();
       isInitialized = true;
     }
@@ -755,7 +798,6 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // دعم الماوس
     viewport.addEventListener('mousedown', (e) => {
       if (e.target.closest('.unit-clickable')) return;
       isPanning = true;
@@ -769,6 +811,7 @@
       pointY = e.clientY - startY;
       setTransform();
     });
+    
     window.addEventListener('mouseup', () => { isPanning = false; });
 
     viewport.addEventListener('wheel', (e) => {
@@ -783,7 +826,6 @@
       setTransform();
     }, {passive: false});
 
-    // دعم اللمس للجوال
     viewport.addEventListener('touchstart', (e) => {
       if (e.target.closest('.unit-clickable')) return;
       if (e.touches.length === 1) {
@@ -806,18 +848,14 @@
         const currentDistance = getDistance(e.touches[0], e.touches[1]);
         const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-
         const deltaScale = currentDistance / lastTouchDistance;
         let newScale = scale * deltaScale;
         newScale = Math.min(Math.max(0.15, newScale), 4); 
-
         const xs = (centerX - pointX) / scale;
         const ys = (centerY - pointY) / scale;
-
         pointX = centerX - xs * newScale;
         pointY = centerY - ys * newScale;
         scale = newScale;
-        
         lastTouchDistance = currentDistance;
         setTransform();
       }
@@ -837,7 +875,8 @@
     // ==========================================
     // إدارة تفاعل الخريطة والعناصر
     // ==========================================
-    const infoName = document.getElementById('infoName');
+    const infoNameMobile = document.getElementById('infoNameMobile');
+    const infoNameDesktop = document.getElementById('infoNameDesktop');
     const infoType = document.getElementById('infoType');
     const infoId = document.getElementById('infoId');
     let selectedElement = null;
@@ -886,14 +925,12 @@
       selectedElement = unit;
       unit.classList.add('selected-active');
 
-      infoName.textContent = unit.getAttribute('data-name') || 'وحدة غير مسماة';
+      const name = unit.getAttribute('data-name') || 'وحدة غير مسماة';
+      infoNameMobile.textContent = name;
+      infoNameDesktop.textContent = name;
+      
       infoType.textContent = unit.getAttribute('data-type') || 'مرافق عامة';
       infoId.textContent = unit.getAttribute('data-id') || 'N/A';
-
-
-      if (window.innerWidth <= 950 && !sidebar.classList.contains('open')) {
-        toggleMenu();
-      }
     }
 
     units.forEach(unit => {
@@ -909,6 +946,10 @@
         if (selectedElement) {
           selectedElement.classList.remove('selected-active');
           selectedElement = null;
+          infoNameMobile.textContent = 'لم يتم اختيار عنصر';
+          infoNameDesktop.textContent = 'لم يتم اختيار عنصر';
+          infoType.textContent = 'اختر عنصراً من الخريطة';
+          infoId.textContent = '—';
         }
         return;
       }

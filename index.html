@@ -997,7 +997,7 @@ function initMapPosition() {
 
       // إنزال الخريطة للأسفل في وضع الجوال العمودي
       if (isMobilePortrait) {
-        pointY += 50; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
+        pointY += 10; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
       }
 
       setTransform();
@@ -1320,18 +1320,37 @@ function initMapPosition() {
           li.appendChild(nameSpan);
           li.appendChild(typeSpan);
           
-          // تفاعل النقر على نتيجة البحث (ينطبق تلقائياً بدون ما يراه المستخدم لو استخدم القوائم السريعة)
+          // تفاعل النقر على نتيجة البحث 
           li.addEventListener('click', () => {
             searchInput.value = name;
             suggestionsList.classList.remove('active');
             
+            // تحقق ما إذا كان العنصر من الخدمات التي تتطلب رؤية الخريطة بالكامل (باك زوم)
+            const needsBackZoom = name.includes("دورة مياه") || name.includes("مياه خاصة") || name === "WC" || name === "المصاعد" || name === "السلالم";
+            
             if (group.elements.length > 1) {
               selectMultipleUnits(group.elements, name, group.type);
-              scale = window.innerWidth <= 950 ? 0.45 : 0.8;
-              setTransform();
+              
+              if (needsBackZoom) {
+                // عمل "باك زوم" ناعم للعودة للمشهد الكامل
+                wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                initMapPosition();
+                setTimeout(() => { wrapper.style.transition = ''; }, 500);
+              } else {
+                scale = window.innerWidth <= 950 ? 0.45 : 0.8;
+                setTransform();
+              }
             } else {
               selectUnit(group.elements[0]);
-              zoomToUnit(group.elements[0]); 
+              
+              if (needsBackZoom) {
+                // عمل "باك زوم" ناعم للعودة للمشهد الكامل
+                wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                initMapPosition();
+                setTimeout(() => { wrapper.style.transition = ''; }, 500);
+              } else {
+                zoomToUnit(group.elements[0]); 
+              }
             }
           });
           

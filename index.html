@@ -836,9 +836,9 @@
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
       
       if (isMobilePortrait) {
-        scale = (vpWidth / dims.width) * 1.22;
+        scale = (vpWidth / dims.width) * 1.45;
       } else {
-        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 1.22;
+        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 1.45;
       }
       
       scale = Math.min(Math.max(0.15, scale), 4);

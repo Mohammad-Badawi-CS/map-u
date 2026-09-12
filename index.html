@@ -916,7 +916,6 @@
     const searchInput = document.getElementById('searchInput');
     const suggestionsList = document.getElementById('suggestionsList');
     
-    // عناصر القوائم السريعة
     const toggleQuickLinksBtn = document.getElementById('toggleQuickLinksBtn');
     const quickLinksContainer = document.getElementById('quickLinksContainer');
 
@@ -928,7 +927,6 @@
     mobileMenuBtn.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
 
-    // حدث النقر على زر استكشاف سريع (الجوال)
     if(toggleQuickLinksBtn) {
       toggleQuickLinksBtn.addEventListener('click', () => {
         quickLinksContainer.classList.toggle('open');
@@ -1121,7 +1119,6 @@
         el.setAttribute('data-type', type);
       }
       
-      // استثناء الممر الرئيسي من أن يكون قابلاً للنقر
       if (id !== 'map_element_1') {
         el.classList.add('unit-clickable');
       }
@@ -1129,10 +1126,16 @@
 
     const units = Array.from(mapSvg.querySelectorAll('[data-id]'));
 
+    // تفريغ التحديدات
+    function clearSelection() {
+      document.querySelectorAll('.selected-active').forEach(el => el.classList.remove('selected-active'));
+      document.querySelectorAll('.selection-overlay').forEach(el => el.remove());
+      selectedElement = null;
+    }
+
+    // تحديد عنصر مفرد
     function selectUnit(unit) {
-      if (selectedElement) {
-        selectedElement.classList.remove('selected-active');
-      }
+      clearSelection();
       selectedElement = unit;
 
       if (unit.getAttribute('data-id') !== 'map_element_1') {
@@ -1149,7 +1152,6 @@
       infoType.textContent = type;
       infoId.textContent = unit.getAttribute('data-id') || 'N/A';
       
-      // إظهار أو إخفاء حقل الإيميل الجامعي بناءً على النوع
       if (type === 'مكتب') {
         infoEmailRow.style.display = 'flex';
         infoEmail.textContent = unit.getAttribute('data-email') || 'غير متوفر';
@@ -1157,26 +1159,47 @@
         infoEmailRow.style.display = 'none';
       }
 
-      // مسح الخطوط من أي مكتب محدد سابقاً
-      let oldOverlay = document.getElementById('selectionOverlay');
-      if (oldOverlay) oldOverlay.remove();
-
-      // إنشاء نسخة مطابقة هندسياً لشكل المكتب المحدد
       let overlayClone = unit.cloneNode(true);
-      overlayClone.id = 'selectionOverlay';
-      
-      // مسح كلاسات الـ CSS القديمة لكي لا تمنع الخطوط من الظهور
+      overlayClone.removeAttribute('id');
       overlayClone.removeAttribute('class'); 
+      overlayClone.classList.add('selection-overlay');
       
-      // تطبيق الخطوط المائلة ومنع التفاعل معها بالماوس
       overlayClone.setAttribute('fill', 'url(#diagonalHatch)');
       overlayClone.setAttribute('stroke', 'none'); 
       overlayClone.style.pointerEvents = 'none';
 
-      // وضع الخطوط فوق المكتب الأصلي
       unit.parentNode.appendChild(overlayClone);
     }
 
+    // تحديد عناصر متعددة 
+    function selectMultipleUnits(matches, title, typeLabel) {
+      clearSelection();
+      
+      matches.forEach(unit => {
+        if (unit.getAttribute('data-id') !== 'map_element_1') {
+          unit.parentNode.appendChild(unit);
+        }
+        unit.classList.add('selected-active');
+
+        let overlayClone = unit.cloneNode(true);
+        overlayClone.removeAttribute('id');
+        overlayClone.removeAttribute('class');
+        overlayClone.classList.add('selection-overlay');
+        overlayClone.setAttribute('fill', 'url(#diagonalHatch)');
+        overlayClone.setAttribute('stroke', 'none');
+        overlayClone.style.pointerEvents = 'none';
+        
+        unit.parentNode.appendChild(overlayClone);
+      });
+
+      infoNameMobile.textContent = `${title} (${matches.length})`;
+      infoNameDesktop.textContent = `${title} (${matches.length})`;
+      infoType.textContent = typeLabel;
+      infoId.textContent = 'تحديد متعدد';
+      infoEmailRow.style.display = 'none';
+    }
+
+    // تقريب الكاميرا على عنصر
     function zoomToUnit(unit) {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
@@ -1210,8 +1233,8 @@
       }, 500);
     }
 
+    // تفاعل النقر على الخريطة
     units.forEach(unit => {
-      // استثناء الممر الرئيسي من أحداث النقر
       if (unit.getAttribute('data-id') !== 'map_element_1') {
         unit.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1220,60 +1243,84 @@
       }
     });
 
+    // تفاعل مربع البحث
     searchInput.addEventListener('input', (e) => {
       const term = e.target.value.trim().toLowerCase();
       suggestionsList.innerHTML = '';
       
       if (!term) {
         suggestionsList.classList.remove('active');
-        if (selectedElement) {
-          selectedElement.classList.remove('selected-active');
-          selectedElement = null;
-          infoNameMobile.textContent = 'لم يتم اختيار عنصر';
-          infoNameDesktop.textContent = 'لم يتم اختيار عنصر';
-          infoType.textContent = 'اختر عنصراً من الخريطة';
-          infoId.textContent = '—';
-          infoEmailRow.style.display = 'none';
-          
-          const oldOverlay = document.getElementById('selectionOverlay');
-          if (oldOverlay) oldOverlay.remove();
-        }
+        clearSelection();
+        infoNameMobile.textContent = 'لم يتم اختيار عنصر';
+        infoNameDesktop.textContent = 'لم يتم اختيار عنصر';
+        infoType.textContent = 'اختر عنصراً من الخريطة';
+        infoId.textContent = '—';
+        infoEmailRow.style.display = 'none';
         return;
       }
 
       const matches = units.filter(unit => {
         const id = (unit.getAttribute('data-id') || '').toLowerCase();
-        
-        // منع الممر الرئيسي من الظهور في نتائج البحث
         if (id === 'map_element_1') return false; 
-
         const name = (unit.getAttribute('data-name') || '').toLowerCase();
         const keywords = (unit.getAttribute('data-keywords') || '').toLowerCase();
         
         return name.includes(term) || id.includes(term) || keywords.includes(term);
-      }).slice(0, 5);
+      });
 
       if (matches.length > 0) {
+        // تجميع ذكي: تحويل الكلمات العامة إلى مجموعة واحدة لسهولة التحديد
+        let groupName = null;
+        if (term === "دورة مياه" || term === "حمام" || term === "wc") groupName = "دورات المياه";
+        else if (term === "مصعد" || term === "مصاعد") groupName = "المصاعد";
+        else if (term === "درج" || term === "سلالم" || term === "درج جناح") groupName = "السلالم";
+        else if (term === "مخزن" || term === "مستودع") groupName = "المخازن";
+
+        const groupedMatches = {};
         matches.forEach(match => {
+          // دمج الأسماء المتقاربة تحت تصنيف واحد إذا كانت من الفئات العامة
+          const name = groupName ? groupName : (match.getAttribute('data-name') || 'غير مسمى');
+          
+          if (!groupedMatches[name]) {
+            groupedMatches[name] = {
+              elements: [],
+              type: match.getAttribute('data-type') || 'مرافق عامة'
+            };
+          }
+          groupedMatches[name].elements.push(match);
+        });
+
+        const groupKeys = Object.keys(groupedMatches).slice(0, 5);
+        
+        groupKeys.forEach(name => {
+          const group = groupedMatches[name];
           const li = document.createElement('li');
           li.className = 'suggestion-item';
           
           const nameSpan = document.createElement('span');
           nameSpan.className = 'suggestion-name';
-          nameSpan.textContent = match.getAttribute('data-name') || 'غير مسمى';
+          nameSpan.textContent = group.elements.length > 1 ? `${name} (${group.elements.length})` : name;
           
           const typeSpan = document.createElement('span');
           typeSpan.className = 'suggestion-type';
-          typeSpan.textContent = match.getAttribute('data-type') || 'مرافق عامة';
+          typeSpan.textContent = group.type;
           
           li.appendChild(nameSpan);
           li.appendChild(typeSpan);
           
+          // تفاعل النقر على نتيجة البحث (ينطبق تلقائياً بدون ما يراه المستخدم لو استخدم القوائم السريعة)
           li.addEventListener('click', () => {
-            searchInput.value = match.getAttribute('data-name');
+            searchInput.value = name;
             suggestionsList.classList.remove('active');
-            selectUnit(match);
-            zoomToUnit(match); 
+            
+            if (group.elements.length > 1) {
+              selectMultipleUnits(group.elements, name, group.type);
+              scale = window.innerWidth <= 950 ? 0.45 : 0.8;
+              setTransform();
+            } else {
+              selectUnit(group.elements[0]);
+              zoomToUnit(group.elements[0]); 
+            }
           });
           
           suggestionsList.appendChild(li);
@@ -1284,25 +1331,25 @@
       }
     });
 
-    // تفعيل أزرار القوائم السريعة (Chips)
+    // تفاعل القوائم السريعة (Chips)
     document.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         e.stopPropagation();
         const searchTerm = chip.getAttribute('data-search');
         searchInput.value = searchTerm;
         
-        // إطلاق حدث الإدخال لتشغيل بحث الخريطة
+        // إطلاق حدث الإدخال لتكوين نتائج البحث بالخفاء
         searchInput.dispatchEvent(new Event('input'));
         
-        // بالنسبة للمكاتب المهمة نقوم بتحديد الخيار الأول تلقائياً للتسهيل
+        // اختيار النتيجة الأولى فوراً برمجياً، لذلك لن يرى المستخدم أي قائمة بحث
         setTimeout(() => {
           const suggestions = suggestionsList.querySelectorAll('li');
-          if (suggestions.length > 0 && chip.classList.contains('auto-select')) {
-             suggestions[0].click();
-          } else if (suggestions.length === 0) {
-             suggestionsList.classList.remove('active');
+          if (suggestions.length > 0) {
+              suggestions[0].click();
+          } else {
+              suggestionsList.classList.remove('active');
           }
-        }, 50);
+        }, 10);
       });
     });
 

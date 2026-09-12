@@ -875,16 +875,18 @@
       "map_element_53": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
       "map_element_58": { name: "م/عادل الحجيلي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عادل الحجيلي", "مكتب م/عادل الحجيلي", "مهندس عادل"] },
       "map_element_82": { name: "مخزن", type: "خدمات خاصة"},
-      "map_element_83": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
+      "map_element_83": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
       "map_element_84": { name: "رئيس لجنة الإرشاد والجداول", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عبدالحميد عمارة", "دكتور عبدالحميد", "جدول", "جداول", "مرشد","BIG BOSS","البيق بوس","موقع", "الحذف والاضافة", "حذف","اضافة", "مادة","مواد","لجنة الارشاد", "الارشاد", "رئيس لجنة الارشاد - د/عبدالحميد عمارة", "مكتب رئيس لجنة الأرشاد"] },
       "map_element_85": { name: "درج 1", type: "خدمات عامة"},
+      "map_element_86": { name: "مصعد 1", type: "خدمات عامة"},
       "map_element_87": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
-      "map_element_90": { name: "مصعد 1", type: "خدمات عامة"},
       "map_element_99": { name: "مدير مكتب وكيل الدراسات العليا", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["نواف المحمدي", "استاذ نواف", "أ/نواف المحمدي", "مدير مكتب وكيل الدراسات العليا"] },
       "map_element_100": { name: "وكيل الدراسات العليا", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["فهد غبان", "دكتور فهد", "د/فهد غبان", "وكيل كلية علوم وهندسة الحاسب الألي للدراسات العليا"] },
+      "map_element_101": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
       "map_element_107": { name: "د/حمزة غندوره", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["حمزة غندورة", "دكتور حمزة", "حمزه غندوره", "مكتب د/حمزة غندوره"] },
       "map_element_108": { name: "مكتب م.محمد الحربي وم.رجاء الحجيلي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["محمد نهار الحربي","ابو نهار","محمد نهار راضي الحربي", "رجاء الحجيلي", "مهندس محمد", "مهندس رجاء", "محمد الحربي", "مكتب م/محمد نهار الحربي - م/رجاء الحجيلي"] },
       "map_element_115": { name: "مخزن", type: "خدمات خاصة"},
+      "map_element_116": { name: "السندوتش الشامي", type: "خدمات عامة" ,keywords: ["الشامي","اكل","طعمية","فلافل","سنوتش", "بوفية", "بوفيه", "مطعم"]},
       "map_element_117": { name: "د/رشيق مرعي", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["رشيق مرعي", "دكتور رشيق", "مكتب د/رشيق مرعي"] },
       "map_element_120": { name: "مصعد 2", type: "خدمات عامة"},
       "map_element_121": { name: "دورة مياه", type: "خدمات عامة",keywords: ["حمام", "WC"] },
@@ -902,7 +904,7 @@
       "map_element_151": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_152": { name: "مخزن", type: "خدمات خاصة"},
       "map_element_153": { name: "مصعد 3", type: "خدمات عامة"},
-      "map_element_154": { name: "دورة مياه", type: "خدمات خاصة"},
+      "map_element_83": { name: " دورة مياه خاصة", type: "خدمات خاصة"},
       "map_element_155": { name: "درج 3", type: "خدمات عامة"},
       "map_element_162": { name: "مكتب الدعم الأكاديمي للطلاب", type: "مكتب", email: "support@taibahu.edu.sa"},
       "map_element_163": { name: "وكيل الشؤون الأكاديمية", type: "مكتب", email: "example@taibahu.edu.sa", keywords: ["عمير بخش", "دكتور عمير", "د/عمير بخش", "مكتب وكيل كلية علوم وهندسة الحاسب الألي للشؤون الأكاديمية"] },
@@ -970,7 +972,7 @@
       wrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 
-    function initMapPosition() {
+function initMapPosition() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
       if (vpWidth === 0 || vpHeight === 0) return;
@@ -978,16 +980,26 @@
       const isMobilePortrait = window.innerWidth <= 950 && window.innerHeight > window.innerWidth;
       
       if (isMobilePortrait) {
+        // الحجم في الجوال بالوضع العمودي (تم الإبقاء عليه كما هو)
         scale = (vpWidth / dims.width) * 1.22;
       } else {
-        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 1.22;
+        // تصغير الخريطة في اللابتوب والجوال بالوضع الأفقي (تغيير 1.22 إلى 0.85)
+        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.85;
       }
       
       scale = Math.min(Math.max(0.15, scale), 4);
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
+      
+      // التوسيط الافتراضي
       pointX = (vpWidth - mapWidth) / 2;
       pointY = (vpHeight - mapHeight) / 2;
+
+      // إنزال الخريطة للأسفل في وضع الجوال العمودي
+      if (isMobilePortrait) {
+        pointY += 120; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
+      }
+
       setTransform();
       isInitialized = true;
     }
@@ -1271,7 +1283,7 @@
       if (matches.length > 0) {
         // تجميع ذكي: تحويل الكلمات العامة إلى مجموعة واحدة لسهولة التحديد
         let groupName = null;
-        if (term === "دورة مياه" || term === "حمام" || term === "wc") groupName = "دورات المياه";
+        if (term === "wc") groupName = "WC";
         else if (term === "مصعد" || term === "مصاعد") groupName = "المصاعد";
         else if (term === "درج" || term === "سلالم" || term === "درج جناح") groupName = "السلالم";
         else if (term === "مخزن" || term === "مستودع") groupName = "المخازن";

@@ -984,7 +984,7 @@ function initMapPosition() {
         scale = (vpWidth / dims.width) * 1.22;
       } else {
         // تصغير الخريطة في اللابتوب والجوال بالوضع الأفقي (تغيير 1.22 إلى 0.85)
-        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.85;
+        scale = Math.min(vpWidth / dims.width, vpHeight / dims.height) * 0.95;
       }
       
       scale = Math.min(Math.max(0.15, scale), 4);
@@ -997,7 +997,7 @@ function initMapPosition() {
 
       // إنزال الخريطة للأسفل في وضع الجوال العمودي
       if (isMobilePortrait) {
-        pointY += 10; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
+        pointY += 50; // يمكنك تكبير أو تصغير هذا الرقم (120) لضبط مستوى النزول بدقة
       }
 
       setTransform();

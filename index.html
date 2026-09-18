@@ -1704,12 +1704,6 @@ function selectUnit(unit) {
   overlayClone.style.pointerEvents = 'none';
 
   unit.parentNode.appendChild(overlayClone);
-
-  // إذا كان العنصر المختار خدمات عامة (درج، دورة مياه، مصعد، مصلى) قم بإرجاع الزوم لوضع البداية
-  const isGeneralService = name.includes("دورة مياه") || name.includes("درج") || name.includes("مصعد") || name.includes("مصلى") || type === "خدمات عامة";
-  if (isGeneralService) {
-    resetMapPosition();
-  }
 }
 
     function selectMultipleUnits(matches, title, typeLabel) {

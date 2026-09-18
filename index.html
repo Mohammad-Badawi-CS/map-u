@@ -99,7 +99,6 @@
       color: var(--accent-cyan);
     }
 
-    /* زر تغيير المبنى أعلى Sidebar */
     .switch-building-btn {
       background: #23282f;
       color: var(--accent-cyan);
@@ -381,7 +380,48 @@
     .selected-active {
       filter: drop-shadow(0 0 10px var(--accent-m)) !important;
       stroke: #9e70ba !important;
-      stroke-width: 8px !important;
+      stroke-width: 6px !important;
+    }
+
+    /* أزرار تنقل الأدوار العائمة على الخريطة */
+    .floor-switch-control {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(28, 32, 36, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+    .floor-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .floor-btn.active {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 2px 8px rgba(116, 210, 232, 0.4);
+    }
+    .floor-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
     }
 
     @keyframes fadeIn {
@@ -496,7 +536,7 @@
         gap: 12px;
       }
 
-      .map-engineering svg { transform: none !important; }
+      .map-engineering svg, .map-engineering-f2 svg { transform: none !important; }
 
       .quick-links-toggle {
         display: flex;
@@ -508,6 +548,11 @@
       .quick-links-container.open {
         display: flex;
         animation: fadeIn 0.3s ease forwards;
+      }
+      .floor-switch-control {
+        top: auto;
+        bottom: 80px;
+        right: 16px;
       }
     }
 
@@ -533,17 +578,17 @@
       .desktop-header h2 { font-size: 1.1rem; }
       .desktop-header p { display: none; }
 
-      .map-engineering svg { transform: none !important; }
+      .map-engineering svg, .map-engineering-f2 svg { transform: none !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- نافذة الترحيب واختيار المبنى -->
+  <!-- نافذة الترحب واختيار المبنى الرئيسي -->
   <div class="building-modal" id="buildingModal">
     <div class="building-modal-card">
       <h2>الخريطة الجامعية T MAP</h2>
-      <p>يرجى اختيار المبنى الذي تريد استكشافه:</p>
+      <p>يرجى اختيار المبنى للبدء في الاستكشاف:</p>
       <div class="building-options">
         <button class="building-btn" onclick="selectBuilding('abiyar')">
           <span>🏛️ مبنى أبيار علي 172</span>
@@ -560,6 +605,17 @@
   <div class="overlay" id="overlay"></div>
 
   <div class="viewport" id="viewport">
+    <!-- زر التبديل السريع بين الأدوار عند اختيار كلية الهندسة -->
+    <div class="floor-switch-control" id="floorSwitchControl">
+      
+            <button class="floor-btn" id="btnFloor2" onclick="switchFloor('engineering_f2')">
+        <span>▲</span> الدور الثاني
+      </button>
+      <button class="floor-btn active" id="btnFloorG" onclick="switchFloor('engineering')">
+        <span>▼</span> الدور الأرضي
+      </button>
+    </div>
+
     <div id="map-wrapper" class="map-abiyar">
       <!-- SVG يولد هنا -->
     </div>
@@ -571,7 +627,7 @@
       <div class="desktop-header">
         <h2 id="currentBuildingTitle">الخريطة الجامعية</h2>
         <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">حدد على أي مكتب أو قاعة لعرض تفاصيلها</p>
-        <button class="switch-building-btn" onclick="showBuildingModal()">🔄 تغيير المبنى</button>
+        <button class="switch-building-btn" onclick="showBuildingModal()">🔄 تغيير المبنى الرئيسي</button>
       </div>
 
       <div class="top-panel">
@@ -618,6 +674,14 @@
   </aside>
 
   <script>
+    const globalPatternDefs = `
+      <defs>
+        <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="10" height="10" fill="transparent" />
+          <line x1="0" y1="0" x2="0" y2="10" stroke="#FFFFFF" stroke-width="8" opacity="0.8" />
+        </pattern>
+      </defs>
+    `;
     const svgAbiyar = `<svg id="Layer_6" data-name="Layer 6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1690.73 749.65">
 <defs>
 <style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#273040;}.cls-4{fill:#47415B;}.cls-5{fill:#19212D;}.cls-6{fill:#3F4E66;}.cls-7{fill:#45386e;}.cls-11,.cls-8{fill:#323c4c;}.cls-9{fill:#0C0D11;}.cls-10{fill:#597699;}.cls-11{stroke:#fff;stroke-miterlimit:10;stroke-width:0.5px;}.cls-12{fill:#333;}.cls-13{fill:#597699;}.cls-14{fill:#28203F;}.cls-15{fill:#27263c;}.cls-16{fill:#34263c;}</style>
@@ -916,7 +980,14 @@
 <path data-id="new_element_5" fill="#323c4c" stroke="#fff" stroke-miterlimit="10" stroke-width="0.8px"  d="M1517.88,25.75,1506.5,54.5s-32-14.14-77.06-18.35l2.27-30.07A351,351,0,0,1,1517.88,25.75Z" transform="translate(-12 -4.35)"/>
 </svg>`;
 
-    const svgEngineering = `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1182 1177.47">
+
+
+    const svgEngineering = globalPatternDefs + structuredSvgEngineGround();
+    
+    const svgEngineeringF2 = globalPatternDefs + `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1182 1177.47"><defs><style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#34263c;}.cls-4{fill:#45386e;}.cls-5{fill:#3f4e66;}.cls-6{fill:#323c4c;}.cls-7{fill:#273040;}.cls-8{fill:#19212d;}.cls-9{fill:none;stroke:#445163;stroke-miterlimit:5;stroke-width:2px;stroke-dasharray:14.72 14.72;}</style></defs><polygon class="cls-1" points="1 1176.47 1 638 93 638 93 539.47 1 539.47 1 1 1181 1 1181 539.03 970.56 539.03 661.59 230.07 520.47 230.07 211.07 539.47 138 539.47 138 638 211.07 638 520.47 947.41 661.59 947.41 970.56 638.44 1181 638.44 1181 1176.47 1 1176.47"/><path class="cls-2" d="M1209,36.53v536H1000l-309-309H549.06L239.66,573H166V673.53h73.66l309.4,309.41H691l309-309h209v536H31V673.53h92V573H31V36.53H1209m2-2H29V575h92v96.53H29V1212H1211V672H999.14l-.58.59L690.17,980.94H549.89L241.07,672.12l-.58-.59H168V575h72.49l.58-.59L549.89,265.6H690.17L998.56,574l.58.59H1211v-540Z" transform="translate(-29 -34.53)"/><polygon class="cls-3" points="224.88 1039.6 224.88 987.83 224.6 987.83 189.37 952.6 137.38 952.6 137.38 687.85 193.84 687.85 489.63 983.63 489.63 1039.6 224.88 1039.6"/><path class="cls-2" d="M222.69,722.75l295.56,295.56v55.44h-264v-51l-.05-.75h-.44l-35-35-.22-.22H166.75v-264h55.94M223,722H166V987.5h52.21l35.24,35.23h.05v51.77H519V1018L223,722Z" transform="translate(-29 -34.53)"/><polygon class="cls-4" points="194 732.47 137 732.47 137 687.47 194 687.47 216.5 709.97 194 732.47"/><rect class="cls-5" x="290.05" y="781.49" width="11" height="86.12" transform="translate(-525.48 415.96) rotate(-45)"/><rect class="cls-5" x="412.05" y="903.49" width="11" height="86.12" transform="translate(-576.02 537.96) rotate(-45)"/><rect class="cls-5" x="184.5" y="885.97" width="18" height="18"/><rect class="cls-5" x="273.5" y="975.97" width="18" height="18"/><rect class="cls-5" x="1.5" y="687.47" width="92.5" height="45"/><rect class="cls-4" x="1.5" y="732.47" width="92.5" height="45"/><rect class="cls-6" x="2" y="777.97" width="91.5" height="44"/><path class="cls-2" d="M122,813v43H31.5V813H122m1-1H30.5v45H123V812Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="2" y="822.97" width="91.5" height="84.5"/><path class="cls-2" d="M122,858v83.5H31.5V858H122m1-1H30.5v85.5H123V857Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="2" y="908.47" width="91.5" height="57"/><path class="cls-2" d="M122,943.5v56H31.5v-56H122m1-1H30.5v58H123v-58Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="2" y="966.47" width="91.5" height="53"/><path class="cls-2" d="M122,1001.5v52H31.5v-52H122m1-1H30.5v54H123v-54Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="2 1082.47 2 1020.47 93.5 1020.47 93.5 1061.77 73.13 1082.47 2 1082.47"/><path class="cls-2" d="M122,1055.5v40.59l-20.08,20.41H31.5v-61H122m1-1H30.5v63h71.84l20.66-21v-42Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="95 1174.97 95 1104.66 116.19 1083.47 183 1083.47 183 1174.97 95 1174.97"/><path class="cls-2" d="M211.5,1118.5V1209h-87v-69.61l20.89-20.89H211.5m1-1H145l-21.32,21.32-.16-.16V1210h89v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="184" y="1083.47" width="58" height="91.5"/><path class="cls-2" d="M270.5,1118.5V1209h-57v-90.5h57m1-1h-59V1210h59v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="243" y="1083.47" width="67" height="91.5"/><path class="cls-2" d="M338.5,1118.5V1209h-66v-90.5h66m1-1h-68V1210h68v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="311" y="1083.47" width="58" height="91.5"/><path class="cls-2" d="M397.5,1118.5V1209h-57v-90.5h57m1-1h-59V1210h59v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="370" y="1083.47" width="58" height="91.5"/><path class="cls-2" d="M456.5,1118.5V1209h-57v-90.5h57m1-1h-59V1210h59v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="429" y="1083.47" width="60.5" height="91.5"/><path class="cls-2" d="M518,1118.5V1209H458.5v-90.5H518m1-1H457.5V1210H519v-92.5Z" transform="translate(-29 -34.53)"/><polygon class="cls-5" points="94.5 1104.13 94.5 1175.47 2 1175.47 2 1082.97 73.34 1082.97 94.5 1104.13"/><polygon class="cls-4" points="490 1082.97 525 1082.97 525 1126.97 557.13 1126.97 557.13 1175.47 490 1175.47 490 1082.97"/><polygon class="cls-5" points="1085.5 1104.13 1085.5 1175.47 1180 1175.47 1180 1082.97 1108.66 1082.97 1085.5 1104.13"/><rect class="cls-7" x="688" y="1083.47" width="91.5" height="91.5"/><path class="cls-2" d="M808,1118.5V1209H717.5v-90.5H808m1-1H716.5V1210H809v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-5" x="620.44" y="1126.97" width="67.12" height="48.5"/><rect class="cls-7" x="824" y="1083.47" width="106.75" height="91.5"/><path class="cls-2" d="M959.25,1118.5V1209H853.5v-90.5H959.25m1-1H852.5V1210H960.25v-92.5Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="931.75" y="1083.47" width="109.75" height="91.5"/><path class="cls-2" d="M1070,1118.5V1209H961.25v-90.5H1070m1-1H960.25V1210H1071v-92.5Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="1108.85 1082.47 1086 1061.59 1086 995.97 1179.5 995.97 1179.5 1082.47 1108.85 1082.47"/><path class="cls-2" d="M1208,1031v85.5h-70l-22.55-20.6V1031H1208m1-1h-94.5v66.34l23.16,21.16H1209V1030Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="1086" y="909" width="93.5" height="86.1"/><path class="cls-2" d="M1208,944v85.09h-92.5V944H1208m1-1h-94.5v87.09H1209V943Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="1086" y="821.97" width="93.5" height="86.1"/><path class="cls-2" d="M1208,857v85.1h-92.5V857H1208m1-1h-94.5v87.1H1209V856Z" transform="translate(-29 -34.53)"/><rect class="cls-8" x="653.31" y="1083.22" width="34" height="43.5"/><path class="cls-2" d="M716.06,1118v43h-33.5v-43h33.5m.5-.5h-34.5v44h34.5v-44Z" transform="translate(-29 -34.53)"/><rect class="cls-8" x="688.5" y="999.22" width="48.88" height="40.5"/><path class="cls-2" d="M766.13,1034v40H717.75v-40h48.38m.5-.5H717.25v41h49.38v-41Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="737.88 1039.72 737.88 998.72 688.5 998.72 688.5 985.82 721.71 952.62 753.25 1007.04 753.25 1039.72 737.88 1039.72"/><path class="cls-2" d="M750.65,987.55,782,1041.63V1074H767.13v-41H717.75v-12.54l32.9-32.91m.11-.81-33.51,33.51v13.25h49.38v41H782.5v-33l-31.74-54.76Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="754 1039.47 754 1006.84 722.38 952.29 789.87 884.81 851.95 884.81 919.6 952.45 888.07 1006.84 888.07 1039.47 754 1039.47"/><path class="cls-2" d="M880.75,919.84,948,987.06,916.7,1041l-.13.23v32.27H783.5v-32.27l-.13-.23L752,986.9l67.06-67.06h61.68m.41-1h-62.5l-67.9,67.9,31.74,54.76v33H917.57v-33l31.65-54.6-68.06-68.06Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="904.94" y="999.47" width="48.38" height="40"/><path class="cls-2" d="M981.82,1034.5v39H934.44v-39h47.38m1-1H933.44v41h49.38v-41Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="888.82 1039.72 888.82 1007.04 920.27 952.78 953.57 986.07 953.57 998.72 904.19 998.72 904.19 1039.72 888.82 1039.72"/><path class="cls-2" d="M949.33,987.71l33,33V1033H932.94v41H918.07v-32.37l31.26-53.92m-.11-.81-31.65,54.6v33h15.87v-41h49.38v-13l-33.6-33.6Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="1002.37" y="904.05" width="40" height="48.38"/><path class="cls-2" d="M1031.86,939.08h39v47.38h-39V939.08m-1-1v49.38h41V938.08Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="988.72 952.67 955.51 919.47 1009.93 887.92 1042.62 887.92 1042.62 903.29 1001.62 903.29 1001.62 952.67 988.72 952.67"/><path class="cls-2" d="M1071.36,922.71v14.87h-41V987h-12.54l-32.9-32.91L1039,922.71h32.36m.5-.5h-33L984.1,954l33.51,33.51h13.25V938.08h41V922.21Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="887.71 851.31 887.71 789.22 955.35 721.58 1009.73 753.11 1042.37 753.11 1042.37 887.17 1009.73 887.17 955.19 918.79 887.71 851.31"/><path class="cls-2" d="M984.43,756.74,1038.36,788l.24.13h32.27V921.21H1038.6l-.24.13-54.09,31.35L917.2,885.63V824l67.22-67.22m-.16-1.25-68.06,68.06V886L984.1,954l54.76-31.74h33V787.14h-33l-54.6-31.64Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="1002.37" y="687.85" width="40" height="48.38"/><path class="cls-2" d="M1031.87,722.88h39v47.38h-39V722.88m-1-1v49.39h41V721.89Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="1009.93 752.36 955.67 720.9 988.97 687.61 1001.62 687.61 1001.62 736.99 1042.62 736.99 1042.62 752.36 1009.93 752.36"/><path class="cls-2" d="M1030.37,722.38v49.39h41v14.87H1039l-53.92-31.25,33-33h12.3m.5-.5h-13l-33.6,33.61,54.6,31.64h33V771.27h-41V721.88Z" transform="translate(-29 -34.53)"/><path class="cls-9" d="M657,1094a37.5,37.5,0,0,1-37.5,37.5c-49.74-2-49.73-73,0-75A37.5,37.5,0,0,1,657,1094Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="690.37 193.79 690.37 138 807.72 138 797.52 221.24 757.67 261.09 690.37 193.79"/><path class="cls-2" d="M836.15,173l-10.1,82.51-39.38,39.38-66.8-66.8V173H836.15m1.13-1H718.87v56.5l67.8,67.8L827,256l10.28-84Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="758.38 261.8 798.48 221.7 808.72 138 954.87 138 954.87 189.77 955.21 189.77 990.45 225 1042.37 225 1042.12 371.4 958.42 381.64 918.32 421.74 758.38 261.8"/><path class="cls-2" d="M983.37,173V223.8l0,1H984L1019,259.74l.3.29h51.62l-.25,145.45-83.09,10.18-.34,0-.25.24-39.62,39.63L788.08,296.33l39.63-39.62.24-.25,0-.34L838.17,173h145.2m1-1H837.28L827,256l-40.33,40.33L947.32,457l40.33-40.33,84-10.28.25-147.34h-52.21L984.42,223.8h0V172Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="986.08 489.5 919.03 422.45 958.88 382.6 1042.12 372.4 1042.12 489.5 986.08 489.5"/><path class="cls-2" d="M1070.62,407.5v116h-55.34L948.73,457l39.38-39.38,82.51-10.1m1-1.13-84,10.28L947.32,457l67.55,67.55h56.75V406.37Z" transform="translate(-29 -34.53)"/><rect class="cls-8" x="656.25" y="137.72" width="33.5" height="53.5"/><path class="cls-2" d="M718.5,172.5v53h-33v-53h33m.5-.5H685v54h34V172Z" transform="translate(-29 -34.53)"/><rect class="cls-5" x="1.5" y="445" width="92.5" height="45"/><rect class="cls-4" x="1.5" y="400" width="92.5" height="45"/><rect class="cls-7" x="2" y="355.5" width="91.5" height="44"/><path class="cls-2" d="M122,390.53v43H31.5v-43H122m1-1H30.5v45H123v-45Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="2" y="270" width="91.5" height="84.5"/><path class="cls-2" d="M122,305v83.5H31.5V305H122m1-1H30.5v85.5H123V304Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="2" y="212" width="91.5" height="57"/><path class="cls-2" d="M122,247v56H31.5V247H122m1-1H30.5v58H123V246Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="2" y="158" width="91.5" height="53"/><path class="cls-2" d="M122,193v52H31.5V193H122m1-1H30.5v54H123V192Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="2 157 2 95 73.13 95 93.5 115.71 93.5 157 2 157"/><path class="cls-2" d="M101.92,130,122,150.44V191H31.5V130h70.42m.42-1H30.5v63H123V150l-20.66-21Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="116.19 94 95 72.81 95 2.5 183 2.5 183 94 116.19 94"/><path class="cls-2" d="M211.5,37.53V128H145.39L124.5,107.14V37.53h87m1-1h-89v71.34l.16-.16L145,129H212.5V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="184" y="2.5" width="97" height="91.5"/><path class="cls-2" d="M309.5,37.53V128h-96V37.53h96m1-1h-98V129h98V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="325" y="2.5" width="132.5" height="91.5"/><path class="cls-2" d="M486,37.53V128H354.5V37.53H486m1-1H353.5V129H487V36.53Z" transform="translate(-29 -34.53)"/><polygon class="cls-5" points="94.5 73.34 94.5 2 2 2 2 94.5 73.34 94.5 94.5 73.34"/><rect class="cls-4" x="458" y="50.47" width="67" height="44"/><polygon class="cls-5" points="1085.5 73.34 1085.5 2 1180 2 1180 94.5 1108.66 94.5 1085.5 73.34"/><rect class="cls-6" x="722" y="2.5" width="88.5" height="91.5"/><path class="cls-2" d="M839,37.53V128H751.5V37.53H839m1-1H750.5V129H840V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="811.63" y="2.5" width="42.75" height="91.5"/><path class="cls-2" d="M882.88,37.53V128H841.13V37.53h41.75m1-1H840.13V129h43.75V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="944" y="2.5" width="57.5" height="91.5"/><path class="cls-2" d="M1030,37.53V128H973.5V37.53H1030m1-1H972.5V129H1031V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="899.63" y="2.5" width="42.75" height="91.5"/><path class="cls-2" d="M970.88,37.53V128H929.13V37.53h41.75m1-1H928.13V129h43.75V36.53Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="1086 204.97 1086 121.52 1108.89 95 1179.5 95 1179.5 204.97 1086 204.97"/><path class="cls-2" d="M1208,130V239h-92.5V156.24L1138.12,130H1208m1-1h-71.34l-23.16,26.84V240H1209V129Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="1086" y="206.47" width="93.5" height="62"/><path class="cls-2" d="M1208,241.5v61h-92.5v-61H1208m1-1h-94.5v63H1209v-63Z" transform="translate(-29 -34.53)"/><rect class="cls-6" x="1086" y="269.41" width="93.5" height="86.1"/><path class="cls-2" d="M1208,304.44v85.09h-92.5V304.44H1208m1-1h-94.5v87.09H1209V303.44Z" transform="translate(-29 -34.53)"/><polygon class="cls-6" points="1003 94 1003 2.5 1085 2.5 1085 72.81 1063.81 94 1003 94"/><path class="cls-2" d="M1113.5,37.53v69.61L1092.61,128H1032.5V37.53h81m1-1h-83V129H1093l21.32-21.32.16.16V36.53Z" transform="translate(-29 -34.53)"/><rect class="cls-5" x="653" y="50.47" width="68.5" height="44"/><rect class="cls-7" x="442.74" y="138" width="48.38" height="40"/><path class="cls-2" d="M519.62,173v39H472.24V173h47.38m1-1H471.24v41h49.38V172Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="426.62 170.43 426.62 137.75 441.99 137.75 441.99 178.75 491.37 178.75 491.37 191.65 458.16 224.85 426.62 170.43"/><path class="cls-2" d="M470.74,172.53v41h49.38v12.54L487.21,259,455.87,204.9V172.53h14.87m.5-.5H455.37v33l31.74,54.76,33.51-33.51V213H471.24V172Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="327.91 292.66 260.27 225.02 291.8 170.64 291.8 138 425.87 138 425.87 170.64 457.48 225.18 390 292.66 327.91 292.66"/><path class="cls-2" d="M454.37,173V205.3l.13.23,31.35,54.1-67.06,67.06H357.12L289.9,259.47l31.26-53.94.14-.23V173H454.37m1-1H320.3v33l-31.65,54.6,68.06,68.06h62.5l67.9-67.9L455.37,205V172Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="226.54" y="138" width="48.38" height="40"/><path class="cls-2" d="M303.43,173v39H256.05V173h47.38m1-1H255.05v41h49.38V172Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="226.29 191.4 226.29 178.75 275.68 178.75 275.68 137.75 291.05 137.75 291.05 170.43 259.59 224.69 226.29 191.4"/><path class="cls-2" d="M319.8,172.53V204.9l-31.26,53.92-33-33V213.53h49.38v-41H319.8m.5-.5H304.43v41H255.05v13l33.6,33.6L320.3,205V172Z" transform="translate(-29 -34.53)"/><rect class="cls-8" x="491.25" y="137.72" width="33.5" height="53.5"/><path class="cls-2" d="M553.5,172.5v53h-33v-53h33m.5-.5H520v54h34V172Z" transform="translate(-29 -34.53)"/><rect class="cls-7" x="137.5" y="225.05" width="40" height="48.38"/><path class="cls-2" d="M167,260.08h39v47.38H167V260.08m-1-1v49.38h41V259.08Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="137.25 289.55 137.25 274.18 178.25 274.18 178.25 224.8 191.15 224.8 224.35 258 169.93 289.55 137.25 289.55"/><path class="cls-2" d="M207.5,259.58H220L253,292.48l-54.08,31.35H166.5V309h41V259.58m-.5-.5v49.38H166v15.87h33l54.76-31.74-33.51-33.51Z" transform="translate(-29 -34.53)"/><polygon class="cls-7" points="170.13 424.37 137.5 424.37 137.5 290.3 170.13 290.3 224.68 258.68 292.16 326.16 292.16 388.25 224.52 455.89 170.13 424.37"/><path class="cls-2" d="M253.6,293.84l67.06,67.06v61.67L253.44,489.8,199.5,458.53l-.23-.13H167V325.33h32.27l.23-.14,54.1-31.35m.16-1.25L199,324.33H166V459.4h33l54.6,31.65L321.66,423v-62.5l-67.9-67.9Z" transform="translate(-29 -34.53)"/><rect class="cls-8" x="137.25" y="440.99" width="40.5" height="48.88"/><path class="cls-2" d="M166.5,475.77h40v48.38h-40V475.77m-.5-.5v49.38h41V475.27Z" transform="translate(-29 -34.53)"/><polygon class="cls-8" points="178.25 489.87 178.25 440.49 137.25 440.49 137.25 425.12 169.93 425.12 224.19 456.57 190.9 489.87 178.25 489.87"/><path class="cls-2" d="M166.5,459.9h32.37l53.92,31.25-33,33H207.5V474.77h-41V459.9m-.5-.5v15.87h41v49.38h13l33.6-33.6L199,459.4Z" transform="translate(-29 -34.53)"/><path class="cls-9" d="M657,156a37.5,37.5,0,0,1-37.5,37.5c-49.74-2-49.73-73,0-75A37.5,37.5,0,0,1,657,156Z" transform="translate(-29 -34.53)"/></svg>`;
+
+    function structuredSvgEngineGround() {
+      return `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1182 1177.47">
 <defs>
 <style>.cls-1{fill:#1e293b;}.cls-2{fill:#fff;}.cls-3{fill:#3F4E66;}.cls-4{fill:#19212d;}.cls-5{fill:#273040;}.cls-6{fill:#45386e;}.cls-7{fill:#323c4c;}.cls-8{fill:#34263c;}.cls-9{fill:none;stroke:#445163;stroke-miterlimit:5;stroke-width:2px;stroke-dasharray:14.72 14.72;}</style>
 <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="transparent" /><line x1="0" y1="0" x2="0" y2="10" stroke="#FFF" stroke-width="8" opacity="0.8" /></pattern>
@@ -1060,6 +1131,7 @@
 <path class="cls-2" d="M1070.62,407.5v116h-55.34L948.73,457l39.38-39.38,82.51-10.1m1-1.13-84,10.28L947.32,457l67.55,67.55h56.75V406.37Z" transform="translate(-29 -34.53)"/>
 <path class="cls-9" d="M657,156a37.5,37.5,0,0,1-37.5,37.5c-49.74-2-49.73-73,0-75A37.5,37.5,0,0,1,657,156Z" transform="translate(-29 -34.53)"/>
 </svg>`;
+    }
 
     const customUnitsAbiyar = {
       "map_element_1": { "name": "ممر رئيسي", "type": "مرر" },
@@ -1304,7 +1376,16 @@
       "map_engtu_73": { "name": "مخزن", "type": "خدمات خاصة" },
       "map_engtu_74": { "name": "مخزن", "type": "خدمات خاصة" },
       "map_engtu_77": { "name": "مخزن", "type": "خدمات خاصة" }
+    };
 
+    const customUnitsEngineeringF2 = {
+      "map_engf2_1": { "name": "مبنى كلية الهندسة - الدور الثاني", "type": "مبنى" },
+      "map_engf2_2": { "name": "125F2-01", "type": "قاعة / معمل" },
+      "map_engf2_3": { "name": "125F2-02", "type": "قاعة دراسية" },
+      "map_engf2_4": { "name": "125F2-03", "type": "مكتب هيئة تدريس" },
+      "map_engf2_5": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_6": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_7": { "name": "مخزن / خدمات", "type": "خدمات خاصة" }
     };
 
     let currentBuilding = 'abiyar';
@@ -1316,19 +1397,47 @@
 
       const wrapper = document.getElementById('map-wrapper');
       const title = document.getElementById('currentBuildingTitle');
+      const floorControl = document.getElementById('floorSwitchControl');
 
       if (buildingKey === 'abiyar') {
         wrapper.innerHTML = svgAbiyar;
         wrapper.className = 'map-abiyar';
         title.textContent = "مبنى أبيار علي";
         customUnits = customUnitsAbiyar;
+        floorControl.style.display = 'none';
         renderQuickLinksAbiyar();
-      } else {
+      } else if (buildingKey === 'engineering' || buildingKey === 'engineering_f2') {
+        floorControl.style.display = 'flex';
+        switchFloor(buildingKey);
+        return;
+      }
+
+      initBuildingMap();
+    }
+
+    function switchFloor(floorKey) {
+      currentBuilding = floorKey;
+      const wrapper = document.getElementById('map-wrapper');
+      const title = document.getElementById('currentBuildingTitle');
+      const btnG = document.getElementById('btnFloorG');
+      const btn2 = document.getElementById('btnFloor2');
+
+      if (floorKey === 'engineering') {
         wrapper.innerHTML = svgEngineering;
         wrapper.className = 'map-engineering';
-        title.textContent = "مبنى كلية الهندسة 125";
+        title.textContent = "مبنى كلية الهندسة 125 (الأرضي)";
         customUnits = customUnitsEngineering;
+        btnG.classList.add('active');
+        btn2.classList.remove('active');
         renderQuickLinksEngineering();
+      } else {
+        wrapper.innerHTML = svgEngineeringF2;
+        wrapper.className = 'map-engineering-f2';
+        title.textContent = "مبنى كلية الهندسة 125 (الدور الثاني)";
+        customUnits = customUnitsEngineeringF2;
+        btn2.classList.add('active');
+        btnG.classList.remove('active');
+        renderQuickLinksEngineeringF2();
       }
 
       initBuildingMap();
@@ -1374,7 +1483,7 @@
       const container = document.getElementById('quickLinksContainer');
       container.innerHTML = `
         <div class="quick-list">
-          <div class="category-title">أهم المكاتب والأقسام</div>
+          <div class="category-title">أهم المكاتب والأقسام (الأرضي)</div>
           <div class="chips-scroll">
             <button class="chip" data-search="عميد كلية الهندسة">مكتب العميد</button>
             <button class="chip" data-search="الهندسة المدنية">قسم الهندسة المدنية</button>
@@ -1391,6 +1500,22 @@
             <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
             <button class="chip" data-search="مصعد">🛗 مصعد</button>
             <button class="chip" data-search="درج">🚶 درج</button>
+          </div>
+        </div>
+      `;
+      bindChipEvents();
+    }
+
+    function renderQuickLinksEngineeringF2() {
+      const container = document.getElementById('quickLinksContainer');
+      container.innerHTML = `
+        <div class="quick-list">
+          <div class="category-title">الدور الثاني - الأقسام والخدمات</div>
+          <div class="chips-scroll">
+            <button class="chip" data-search="قاعة">🏫 القاعات الدراسية</button>
+            <button class="chip" data-search="مكتب">👨‍🏫 مكاتب هيئة التدريس</button>
+            <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
+            <button class="chip" data-search="درج">🚶 السلالم / الدرج</button>
           </div>
         </div>
       `;
@@ -1529,7 +1654,9 @@
         return true;
       });
 
-      const prefix = currentBuilding === 'engineering' ? 'map_engtu_' : 'map_element_';
+      let prefix = 'map_element_';
+      if (currentBuilding === 'engineering') prefix = 'map_engtu_';
+      else if (currentBuilding === 'engineering_f2') prefix = 'map_engf2_';
 
       drawableElements.forEach((el, index) => {
         const id = el.hasAttribute('data-id') ? el.getAttribute('data-id') : `${prefix}${index + 1}`;
@@ -1666,66 +1793,106 @@
       selectedElement = null;
     }
 
-function selectUnit(unit) {
-  clearSelection();
-  selectedElement = unit;
+function createHatchOverlay(unit) {
+  const currentSvg = wrapper.querySelector('svg');
+  if (!currentSvg) return;
 
-  const prefix = currentBuilding === 'engineering' ? 'map_engtu_' : 'map_element_';
-  const unitId = unit.getAttribute('data-id');
-
-  if (unitId !== `${prefix}1` && unitId !== 'map_engtu_24') {
-    unit.parentNode.appendChild(unit);
+  // التأكد من وجود defs خاص بنا داخل الـ SVG
+  let defs = currentSvg.querySelector('defs');
+  if (!defs) {
+    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    currentSvg.insertBefore(defs, currentSvg.firstChild);
   }
 
-  unit.classList.add('selected-active');
+  // إنشاء نمط الخطوط المائلة برمجيًا إذا لم يكن موجودًا
+  if (!currentSvg.querySelector('#diagonalHatchCustom')) {
+    const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+    pattern.setAttribute('id', 'diagonalHatchCustom');
+    pattern.setAttribute('width', '10');
+    pattern.setAttribute('height', '10');
+    pattern.setAttribute('patternTransform', 'rotate(45)');
+    pattern.setAttribute('patternUnits', 'userSpaceOnUse');
 
-  const name = unit.getAttribute('data-name') || 'وحدة غير مسماة';
-  const type = unit.getAttribute('data-type') || 'مرافق عامة';
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', '10');
+    rect.setAttribute('height', '10');
+    rect.setAttribute('fill', 'transparent');
 
-  infoNameMobile.textContent = name;
-  infoNameDesktop.textContent = name;
-  infoType.textContent = type;
-  infoId.textContent = unitId || 'N/A';
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', '0');
+    line.setAttribute('y1', '0');
+    line.setAttribute('x2', '0');
+    line.setAttribute('y2', '10');
+    line.setAttribute('stroke', '#FFFFFF');
+    line.setAttribute('stroke-width', '8');
+    line.setAttribute('opacity', '0.8');
 
-  if (type === 'مكتب') {
-    infoEmailRow.style.display = 'flex';
-    infoEmail.textContent = unit.getAttribute('data-email') || 'غير متوفر';
-  } else {
-    infoEmailRow.style.display = 'none';
+    pattern.appendChild(rect);
+    pattern.appendChild(line);
+    defs.appendChild(pattern);
   }
 
+  // نسخ العنصر المحدد وإنشاء طبقة التظليل فوقه
   let overlayClone = unit.cloneNode(true);
   overlayClone.removeAttribute('id');
-  overlayClone.removeAttribute('class'); 
+  overlayClone.removeAttribute('class');
   overlayClone.classList.add('selection-overlay');
 
-  overlayClone.setAttribute('fill', 'url(#diagonalHatch)');
-  overlayClone.setAttribute('stroke', 'none'); 
+  overlayClone.setAttribute('fill', 'url(#diagonalHatchCustom)');
+  overlayClone.setAttribute('stroke', 'none');
   overlayClone.style.pointerEvents = 'none';
 
   unit.parentNode.appendChild(overlayClone);
 }
 
+    function selectUnit(unit) {
+      clearSelection();
+      selectedElement = unit;
+
+      let prefix = 'map_element_';
+      if (currentBuilding === 'engineering') prefix = 'map_engtu_';
+      else if (currentBuilding === 'engineering_f2') prefix = 'map_engf2_';
+
+      const unitId = unit.getAttribute('data-id');
+
+      if (unitId !== `${prefix}1` && unitId !== 'map_engtu_24') {
+        unit.parentNode.appendChild(unit);
+      }
+
+      unit.classList.add('selected-active');
+
+      const name = unit.getAttribute('data-name') || 'وحدة غير مسماة';
+      const type = unit.getAttribute('data-type') || 'مرافق عامة';
+
+      infoNameMobile.textContent = name;
+      infoNameDesktop.textContent = name;
+      infoType.textContent = type;
+      infoId.textContent = unitId || 'N/A';
+
+      if (type === 'مكتب') {
+        infoEmailRow.style.display = 'flex';
+        infoEmail.textContent = unit.getAttribute('data-email') || 'غير متوفر';
+      } else {
+        infoEmailRow.style.display = 'none';
+      }
+
+      createHatchOverlay(unit);
+    }
+
     function selectMultipleUnits(matches, title, typeLabel) {
       clearSelection();
 
-      const prefix = currentBuilding === 'engineering' ? 'map_engtu_' : 'map_element_';
+      let prefix = 'map_element_';
+      if (currentBuilding === 'engineering') prefix = 'map_engtu_';
+      else if (currentBuilding === 'engineering_f2') prefix = 'map_engf2_';
+
       matches.forEach(unit => {
         const uId = unit.getAttribute('data-id');
         if (uId !== `${prefix}1` && uId !== 'map_engtu_24') {
           unit.parentNode.appendChild(unit);
         }
         unit.classList.add('selected-active');
-
-        let overlayClone = unit.cloneNode(true);
-        overlayClone.removeAttribute('id');
-        overlayClone.removeAttribute('class');
-        overlayClone.classList.add('selection-overlay');
-        overlayClone.setAttribute('fill', 'url(#diagonalHatch)');
-        overlayClone.setAttribute('stroke', 'none');
-        overlayClone.style.pointerEvents = 'none';
-
-        unit.parentNode.appendChild(overlayClone);
+        createHatchOverlay(unit);
       });
 
       infoNameMobile.textContent = `${title} (${matches.length})`;
@@ -1735,35 +1902,35 @@ function selectUnit(unit) {
       infoEmailRow.style.display = 'none';
     }
 
-function resetMapPosition() {
-  const vpWidth = viewport.clientWidth;
-  const vpHeight = viewport.clientHeight;
-  if (vpWidth === 0 || vpHeight === 0) return;
+    function resetMapPosition() {
+      const vpWidth = viewport.clientWidth;
+      const vpHeight = viewport.clientHeight;
+      if (vpWidth === 0 || vpHeight === 0) return;
 
-  const dims = getMapDimensions();
-  const isMobile = window.innerWidth <= 950;
+      const dims = getMapDimensions();
+      const isMobile = window.innerWidth <= 950;
 
-  const scaleX = vpWidth / dims.width;
-  const scaleY = vpHeight / dims.height;
+      const scaleX = vpWidth / dims.width;
+      const scaleY = vpHeight / dims.height;
 
-  if (currentBuilding === 'abiyar') {
-    scale = Math.min(scaleX, scaleY) * (isMobile ? 3.5 : 5.5);
-  } else {
-    scale = Math.min(scaleX, scaleY) * (isMobile ? 2.0 : 3.8);
-  }
-  scale = Math.min(Math.max(0.3, scale), 15);
+      if (currentBuilding === 'abiyar') {
+        scale = Math.min(scaleX, scaleY) * (isMobile ? 3.5 : 5.5);
+      } else {
+        scale = Math.min(scaleX, scaleY) * (isMobile ? 2.0 : 3.8);
+      }
+      scale = Math.min(Math.max(0.3, scale), 15);
 
-  pointX = 0;
-  pointY = 0;
+      pointX = 0;
+      pointY = 0;
 
-  wrapper.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-  setTransform();
+      wrapper.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+      setTransform();
 
-  setTimeout(() => {
-    wrapper.style.transition = '';
-  }, 600);
-}
-    
+      setTimeout(() => {
+        wrapper.style.transition = '';
+      }, 600);
+    }
+        
     function zoomToUnit(unit) {
       const mapSvg = wrapper.querySelector('svg');
       if (!mapSvg) return;
@@ -1774,8 +1941,6 @@ function resetMapPosition() {
       let unitCx = bbox.x + (bbox.width / 2);
       let unitCy = bbox.y + (bbox.height / 2);
 
-      // إذا كان المبنى هو أبيار علي (نظراً لأن الـ SVG مدور 180 درجة)
-      // نعكس الإحداثيات ليتطابق مركز التكبير مع العنصر المحدد بدقة
       if (currentBuilding === 'abiyar') {
         unitCx = dims.width - unitCx;
         unitCy = dims.height - unitCy;
@@ -1820,7 +1985,10 @@ function resetMapPosition() {
         return;
       }
 
-      const prefix = currentBuilding === 'engineering' ? 'map_engtu_' : 'map_element_';
+      let prefix = 'map_element_';
+      if (currentBuilding === 'engineering') prefix = 'map_engtu_';
+      else if (currentBuilding === 'engineering_f2') prefix = 'map_engf2_';
+
       const matches = units.filter(unit => {
         const id = (unit.getAttribute('data-id') || '').toLowerCase();
         if (id === `${prefix}1` || id === 'map_engtu_41' || id === 'map_engtu_42') return false; 
@@ -1870,33 +2038,33 @@ function resetMapPosition() {
           li.appendChild(nameSpan);
           li.appendChild(typeSpan);
 
-li.addEventListener('click', (ev) => {
-  const disableZoom = ev.currentTarget.clickData?.disableZoom || false;
+          li.addEventListener('click', (ev) => {
+            const disableZoom = ev.currentTarget.clickData?.disableZoom || false;
 
-  searchInput.value = name;
-  suggestionsList.classList.remove('active');
+            searchInput.value = name;
+            suggestionsList.classList.remove('active');
 
-  const isGeneralService = name.includes("دورة مياه") || name.includes("مياه خاصة") || name === "WC" || name === "المصاعد" || name === "السلالم" || name === "المصليات" || name.includes("مصلى") || name.includes("درج") || name.includes("مصعد");
+            const isGeneralService = name.includes("دورة مياه") || name.includes("مياه خاصة") || name === "WC" || name === "المصاعد" || name === "السلالم" || name === "المصليات" || name.includes("مصلى") || name.includes("درج") || name.includes("مصعد");
 
-  if (group.elements.length > 1) {
-    selectMultipleUnits(group.elements, name, group.type);
+            if (group.elements.length > 1) {
+              selectMultipleUnits(group.elements, name, group.type);
 
-    if (isGeneralService || disableZoom) {
-      resetMapPosition();
-    } else {
-      scale = window.innerWidth <= 950 ? 2.0 : 2.5;
-      setTransform();
-    }
-  } else {
-    selectUnit(group.elements[0]);
+              if (isGeneralService || disableZoom) {
+                resetMapPosition();
+              } else {
+                scale = window.innerWidth <= 950 ? 2.0 : 2.5;
+                setTransform();
+              }
+            } else {
+              selectUnit(group.elements[0]);
 
-    if (isGeneralService || disableZoom) {
-      resetMapPosition();
-    } else {
-      zoomToUnit(group.elements[0]); 
-    }
-  }
-});
+              if (isGeneralService || disableZoom) {
+                resetMapPosition();
+              } else {
+                zoomToUnit(group.elements[0]); 
+              }
+            }
+          });
 
           suggestionsList.appendChild(li);
         });

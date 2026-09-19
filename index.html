@@ -862,7 +862,7 @@
     <div class="floor-switch-control" id="floorSwitchControl">
       
             <button class="floor-btn" id="btnFloor2" onclick="switchFloor('engineering_f2')">
-        <span>▲</span> الدور الثاني
+        <span>▲</span> الدور الأول
       </button>
       <button class="floor-btn active" id="btnFloorG" onclick="switchFloor('engineering')">
         <span>▼</span> الدور الأرضي
@@ -1638,13 +1638,73 @@
     };
 
     const customUnitsEngineeringF2 = {
-      "map_engf2_1": { "name": "مبنى كلية الهندسة - الدور الثاني", "type": "مبنى" },
-      "map_engf2_2": { "name": "125F2-01", "type": "قاعة / معمل" },
-      "map_engf2_3": { "name": "125F2-02", "type": "قاعة دراسية" },
-      "map_engf2_4": { "name": "125F2-03", "type": "مكتب هيئة تدريس" },
+      "map_engf2_1": { "name": "مبنى كلية الهندسة - الدور الأول", "type": "مبنى" },
+      "map_engf2_2": { "name": "مطعم الجامعة", "type": "مطعم", "keywords": ["أكل", "اكل", "وجبات", "مطعم", "مطاعم"] },
+      "map_engf2_3": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_4": { "name": "درج", "type": "خدمات عامة" },
       "map_engf2_5": { "name": "درج", "type": "خدمات عامة" },
-      "map_engf2_6": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
-      "map_engf2_7": { "name": "مخزن / خدمات", "type": "خدمات خاصة" }
+      "map_engf2_6": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_7": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_8": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_9": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_10": { "name": "رئيس قسم", "type": "مكتب", "keywords": ["  ", " "], "email": ""},
+      "map_engf2_11": { "name": "رئيس قسم", "type": "مكتب", "keywords": ["  ", " "], "email": ""},
+      "map_engf2_12": { "name": "رئيس قسم", "type": "مكتب", "keywords": ["  ", " "], "email": ""},
+      "map_engf2_13": { "name": "رئيس قسم", "type": "مكتب", "keywords": ["  ", " "], "email": ""},
+      "map_engf2_14": { "name": "رئيس قسم", "type": "مكتب", "keywords": ["  ", " "], "email": ""},
+      "map_engf2_15": { "name": "مكتبة", "type": "مكتبة"},
+      "map_engf2_16": { "name": "وكيل الشؤون الأكاديمية", "type": "مكتب", "keywords": ["أحمد طلعت حلواني", "احمد الحلواني"], "email": "ahalawani@taibahu.edu.sa"},
+      "map_engf2_17": { "name": "وكيل الدراسات العليا", "type": "مكتب", "keywords": ["رمزي لافي الاحمدي", "رمزي الأحمدي"], "email": "rlahmadi@taibahu.edu.sa"},
+      "map_engf2_18": { "name": "قاعة اجتماعات", "type": "قاعة اجتماعات"},
+      "map_engf2_19": { "name": "عميد كلية الهندسة", "type": "مكتب", "keywords": [" العميد ", "عمر الرويثي"], "email": "ORUWAYTHI@taibahu.edu.sa"},
+      "map_engf2_20": { "name": "مدير مكتب العميد", "type": "مكتب"},
+      "map_engf2_21": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_22": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_23": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_24": { "name": "125F39", "type": "قاعة" },
+      "map_engf2_25": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_26": { "name": "125F26", "type": "قاعة" },
+      "map_engf2_27": { "name": "125F24", "type": "قاعة" },
+      "map_engf2_28": { "name": "125F21", "type": "قاعة" },
+      "map_engf2_29": { "name": "125F20", "type": "قاعة" },
+      "map_engf2_30": { "name": "125F19", "type": "قاعة" },
+      "map_engf2_31": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_32": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_33": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_34": { "name": "125F10", "type": "قاعة" },
+      "map_engf2_35": { "name": "125F11", "type": "قاعة" },
+      "map_engf2_36": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_37": { "name": "125F15", "type": "قاعة" },
+      "map_engf2_38": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_39": { "name": "125F16", "type": "قاعة" },
+      "map_engf2_40": { "name": "125F01", "type": "قاعة" },
+      "map_engf2_41": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_46": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_47": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_48": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_49": { "name": "125F22", "type": "قاعة" },
+      "map_engf2_50": { "name": "125F51", "type": "قاعة" },
+      "map_engf2_51": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_52": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_53": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_54": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_55": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_56": { "name": "مكتب أعضاء هيئة التدريس", "type": "مكتب" },
+      "map_engf2_57": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_58": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
+      "map_engf2_59": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_68": { "name": "درج", "type": "خدمات عامة" },
+      "map_engf2_69": { "name": "125F36", "type": "قاعة" },
+      "map_engf2_70": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_71": { "name": "125F35", "type": "قاعة" },
+      "map_engf2_72": { "name": "125F43", "type": "قاعة" },
+      "map_engf2_73": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_74": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_75": { "name": "125F53", "type": "قاعة" },
+      "map_engf2_76": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_77": { "name": "125F56", "type": "قاعة" },
+      "map_engf2_78": { "name": "مخزن", "type": "خدمات خاصة" },
+      "map_engf2_79": { "name": "مخزن", "type": "خدمات خاصة" }
     };
 
     let currentBuilding = 'abiyar';
@@ -1692,7 +1752,7 @@
       } else {
         wrapper.innerHTML = svgEngineeringF2;
         wrapper.className = 'map-engineering-f2';
-        title.textContent = "مبنى كلية الهندسة 125 (الدور الثاني)";
+        title.textContent = "مبنى كلية الهندسة 125 (الدور الأول)";
         customUnits = customUnitsEngineeringF2;
         btn2.classList.add('active');
         btnG.classList.remove('active');
@@ -1744,20 +1804,10 @@
       const container = document.getElementById('quickLinksContainer');
       container.innerHTML = `
         <div class="quick-list">
-          <div class="category-title">أهم المكاتب والأقسام (الأرضي)</div>
+          <div class="category-title">الخدمات</div>
           <div class="chips-scroll">
-            <button class="chip" data-search="عميد كلية الهندسة">مكتب العميد</button>
-            <button class="chip" data-search="الهندسة المدنية">قسم الهندسة المدنية</button>
-            <button class="chip" data-search="الهندسة الكهربائية">قسم الهندسة الكهربائية</button>
-            <button class="chip" data-search="الهندسة الميكانيكية">قسم الهندسة الميكانيكية</button>
-            <button class="chip" data-search="الهندسة الصناعية">قسم الهندسة الصناعية</button>
-          </div>
-        </div>
-        <div class="quick-list">
-          <div class="category-title">الخدمات والمعامل</div>
-          <div class="chips-scroll">
-            <button class="chip" data-search="معمل">🔬 المعامل</button>
-            <button class="chip" data-search="مصلى">🕌 المصلى</button>
+            <button class="chip" data-search="مطعم">🍽️ مطعم</button>
+            <button class="chip" data-search="مصلى">🕌 المصليات</button>
             <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
             <button class="chip" data-search="مصعد">🛗 مصعد</button>
             <button class="chip" data-search="درج">🚶 درج</button>
@@ -1771,12 +1821,28 @@
       const container = document.getElementById('quickLinksContainer');
       container.innerHTML = `
         <div class="quick-list">
-          <div class="category-title">الدور الثاني - الأقسام والخدمات</div>
+          <div class="category-title">الدور الأول - اهم المكاتب</div>
           <div class="chips-scroll">
-            <button class="chip" data-search="قاعة">🏫 القاعات الدراسية</button>
-            <button class="chip" data-search="مكتب">👨‍🏫 مكاتب هيئة التدريس</button>
+            <button class="chip" data-search="العميد"> العميد</button>
+            <button class="chip" data-search="وكيل الشؤون الأكاديمية"> وكيل الشؤون الأكاديمية</button>
+            <button class="chip" data-search="وكيل الدراسات العليا">وكيل الدراسات العليا </button>
+            <button class="chip" data-search="رئيس قسم الهندسة الميكانيكية"> رئيس قسم الهندسة الميكانيكية</button>
+            <button class="chip" data-search="رئيس قسم الهندسة الكهربائية"> رئيس قسم الهندسة الكهربائية</button>
+            <button class="chip" data-search="رئيس قسم الهندسة الصناعية"> رئيس قسم الهندسة الصناعية</button>
+            <button class="chip" data-search="رئيس قسم الهندسة المدنية"> رئيس قسم الهندسة المدنية</button>
+            <button class="chip" data-search="رئيس قسم الهندسة المعمارية"> رئيس قسم الهندسة المعمارية</button>
+            <button class="chip" data-search="رئيس قسم هندسة الاتصالات"> رئيس قسم هندسة الاتصالات</button>
+            <button class="chip" data-search="رئيس قسم هندسة الطاقة"> رئيس قسم هندسة الطاقة</button>
+
+          </div>
+        </div>
+                  <div class="category-title">الخدمات</div>
+          <div class="chips-scroll">
+            <button class="chip" data-search="مطعم">🍽️ مطعم</button>
+            <button class="chip" data-search="مصلى">🕌 المصليات</button>
             <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
-            <button class="chip" data-search="درج">🚶 السلالم / الدرج</button>
+            <button class="chip" data-search="مصعد">🛗 مصعد</button>
+            <button class="chip" data-search="درج">🚶 درج</button>
           </div>
         </div>
       `;

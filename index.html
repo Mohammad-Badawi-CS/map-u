@@ -269,6 +269,21 @@
       flex-direction: column;
       gap: 20px;
       height: 100%;
+      overflow: hidden;
+    }
+
+    /* على سطح المكتب: لوحة التفاصيل ثابتة وظاهرة دائماً أسفل الشريط،
+       وبقية المحتوى يمرر داخلياً حتى لا تختفي التفاصيل */
+    .top-panel {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bottom-sheet {
+      flex-shrink: 0;
     }
 
     .desktop-header h2 {
@@ -665,11 +680,14 @@
         flex-direction: column;
         justify-content: space-between;
         height: 100%;
+        overflow: visible;
       }
 
       .desktop-header { display: none; }
 
       .top-panel {
+        flex: none;
+        overflow: visible;
         background: var(--panel-bg);
         padding: 16px;
         pointer-events: auto;
@@ -753,6 +771,8 @@
       }
 
       .map-engineering svg, .map-engineering-f2 svg { transform: none !important; }
+      /* في الوضع العامودي تُدار خريطة أبيار 270 درجة لتملأ شاشة الجوال */
+      .map-abiyar svg { transform: rotate(270deg); }
 
       .quick-links-toggle {
         display: flex;
@@ -794,6 +814,12 @@
       .sidebar-content {
         padding: 16px;
         gap: 12px;
+        overflow: visible;
+      }
+
+      .top-panel {
+        flex: none;
+        overflow: visible;
       }
 
       .desktop-header h2 { font-size: 1.1rem; }
@@ -1881,15 +1907,27 @@
         : { width: 1182, height: 1177.47 };
     }
 
+    function isAbiyarPortrait() {
+      return currentBuilding === 'abiyar'
+        && window.innerWidth <= 950
+        && window.matchMedia('(orientation: portrait)').matches;
+    }
+
+    // الأبعاد الفعلية المعروضة بعد التدوير (في عامودي الجوال تُقلب أبيار 90 درجة)
+    function getEffectiveDims() {
+      const d = getMapDimensions();
+      return isAbiyarPortrait() ? { width: d.height, height: d.width } : d;
+    }
+
     function setTransform() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
-      const dims = getMapDimensions();
+      const dims = getEffectiveDims();
       const mapWidth = dims.width * scale;
       const mapHeight = dims.height * scale;
 
-      const marginX = vpWidth * 0.4;
-      const marginY = vpHeight * 0.4;
+      const marginX = vpWidth * 0.85;
+      const marginY = vpHeight * 0.85;
 
       pointX = Math.min(marginX, Math.max(pointX, -mapWidth + marginX));
       pointY = Math.min(marginY, Math.max(pointY, -mapHeight + marginY));
@@ -1897,23 +1935,24 @@
       wrapper.style.transform = `translate(calc(-50% + ${pointX}px), calc(-50% + ${pointY}px)) scale(${scale})`;
     }
 
+    function fitScale() {
+      const vpW = viewport.clientWidth;
+      const vpH = viewport.clientHeight;
+      const d = getEffectiveDims();
+      return Math.min(vpW / d.width, vpH / d.height);
+    }
+
     function initMapPosition() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
       if (vpWidth === 0 || vpHeight === 0) return;
 
-      const dims = getMapDimensions();
-      const isMobile = window.innerWidth <= 950;
+      const raw = getMapDimensions();
+      wrapper.style.width = raw.width + 'px';
+      wrapper.style.height = raw.height + 'px';
 
-      const scaleX = vpWidth / dims.width;
-      const scaleY = vpHeight / dims.height;
-
-      if (currentBuilding === 'abiyar') {
-        scale = Math.min(scaleX, scaleY) * (isMobile ? 3.5 : 5.5);
-      } else {
-        scale = Math.min(scaleX, scaleY) * (isMobile ? 2.0 : 3.8);
-      }
-      scale = Math.min(Math.max(0.3, scale), 15);
+      const k = window.innerWidth <= 950 ? 1.15 : 1.0;
+      scale = Math.min(Math.max(0.3, fitScale() * k), 15);
 
       pointX = 0;
       pointY = 0;
@@ -2189,18 +2228,12 @@ function createHatchOverlay(unit) {
       const vpHeight = viewport.clientHeight;
       if (vpWidth === 0 || vpHeight === 0) return;
 
-      const dims = getMapDimensions();
-      const isMobile = window.innerWidth <= 950;
+      const raw = getMapDimensions();
+      wrapper.style.width = raw.width + 'px';
+      wrapper.style.height = raw.height + 'px';
 
-      const scaleX = vpWidth / dims.width;
-      const scaleY = vpHeight / dims.height;
-
-      if (currentBuilding === 'abiyar') {
-        scale = Math.min(scaleX, scaleY) * (isMobile ? 3.5 : 5.5);
-      } else {
-        scale = Math.min(scaleX, scaleY) * (isMobile ? 2.0 : 3.8);
-      }
-      scale = Math.min(Math.max(0.3, scale), 15);
+      const k = window.innerWidth <= 950 ? 1.15 : 1.0;
+      scale = Math.min(Math.max(0.3, fitScale() * k), 15);
 
       pointX = 0;
       pointY = 0;
@@ -2239,31 +2272,32 @@ function createHatchOverlay(unit) {
       );
     }
 
+    // متجه اتجاه المركز بعد تدوير الخريطة (قبل ضرب معامل التكبير)
+    function viewOffsetFor(cx, cy) {
+      const dims = getMapDimensions();
+      const dx = cx - dims.width / 2;
+      const dy = cy - dims.height / 2;
+      if (isAbiyarPortrait()) return { x: dy, y: -dx };
+      if (currentBuilding === 'abiyar') return { x: -dx, y: -dy };
+      return { x: dx, y: dy };
+    }
+
     function zoomToUnit(unit) {
       const mapSvg = wrapper.querySelector('svg');
       if (!mapSvg) return;
 
       const bbox = unit.getBBox();
-      const dims = getMapDimensions();
-
-      let unitCx = bbox.x + (bbox.width / 2);
-      let unitCy = bbox.y + (bbox.height / 2);
-
-      if (currentBuilding === 'abiyar') {
-        unitCx = dims.width - unitCx;
-        unitCy = dims.height - unitCy;
-      }
+      const cx = bbox.x + (bbox.width / 2);
+      const cy = bbox.y + (bbox.height / 2);
 
       let targetScale;
-      if (currentBuilding === 'abiyar') {
-        targetScale = window.innerWidth <= 950 ? 4.8 : 6.0;
-      } else {
-        targetScale = window.innerWidth <= 950 ? 3.2 : 4.2;
-      }
-      scale = targetScale;
+      const zoomFactor = window.innerWidth <= 950 ? 4 : 5;
+      targetScale = fitScale() * zoomFactor;
+      scale = Math.min(Math.max(0.3, targetScale), 15);
 
-      pointX = (dims.width / 2) - unitCx;
-      pointY = (dims.height / 2) - unitCy;
+      const r = viewOffsetFor(cx, cy);
+      pointX = -scale * r.x;
+      pointY = -scale * r.y;
 
       wrapper.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
       setTransform();

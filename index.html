@@ -1908,24 +1908,26 @@ function setTransform() {
       return Math.min(vpW / d.width, vpH / d.height);
     }
 
-    function initMapPosition() {
-      const vpWidth = viewport.clientWidth;
-      const vpHeight = viewport.clientHeight;
-      if (vpWidth === 0 || vpHeight === 0) return;
+  function initMapPosition() {
+    const vpWidth = viewport.clientWidth;
+    const vpHeight = viewport.clientHeight;
+    if (vpWidth === 0 || vpHeight === 0) return;
 
-      const raw = getMapDimensions();
-      wrapper.style.width = raw.width + 'px';
-      wrapper.style.height = raw.height + 'px';
+    const raw = getMapDimensions();
+    wrapper.style.width = raw.width + 'px';
+    wrapper.style.height = raw.height + 'px';
 
-      const k = window.innerWidth <= 950 ? 0.7 : 1.0;
-      scale = Math.min(Math.max(0.3, fitScale() * k), 15);
+    const k = window.innerWidth <= 950 ? 0.7 : 1.0;
+    scale = Math.min(Math.max(0.3, fitScale() * k), 15);
 
-      pointX = 0;
-      pointY = 25;
+    pointX = 0;
+    
+    // التعديل هنا: تحديد قيمة pointY بناءً على نوع الجهاز (جوال أو لابتوب)
+    pointY = window.innerWidth <= 950 ? 25 : 0;
 
-      setTransform();
-      isInitialized = true;
-    }
+    setTransform();
+    isInitialized = true;
+  }
 
     function initBuildingMap() {
       const mapSvg = wrapper.querySelector('svg');

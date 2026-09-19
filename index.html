@@ -1919,18 +1919,22 @@
       return isAbiyarPortrait() ? { width: d.height, height: d.width } : d;
     }
 
-    function setTransform() {
+function setTransform() {
       const vpWidth = viewport.clientWidth;
       const vpHeight = viewport.clientHeight;
-      const dims = getEffectiveDims();
-      const mapWidth = dims.width * scale;
-      const mapHeight = dims.height * scale;
+      const dims = getMapDimensions();
+      
+      // نأخذ الضلع الأطول من الخريطة (سواء الطول أو العرض) مع معامل التكبير
+      // هذا يحل مشكلة الدوران ويضمن أن الحدود متسعة دائماً
+      const maxDim = Math.max(dims.width, dims.height) * scale;
 
-      const marginX = vpWidth * 0;
-      const marginY = vpHeight * 0;
+      // كبّرنا الحد بشكل كبير جداً (أكبر بُعد للخريطة + عرض/طول الشاشة بالكامل)
+      // لكي تسحب الخريطة لليمين أو لأي اتجاه بحرية تامة دون أن توقفك الحدود
+      const boundX = maxDim + vpWidth;
+      const boundY = maxDim + vpHeight;
 
-      pointX = Math.min(marginX, Math.max(pointX, -mapWidth + marginX));
-      pointY = Math.min(marginY, Math.max(pointY, -mapHeight + marginY));
+      pointX = Math.min(boundX, Math.max(pointX, -boundX));
+      pointY = Math.min(boundY, Math.max(pointY, -boundY));
 
       wrapper.style.transform = `translate(calc(-50% + ${pointX}px), calc(-50% + ${pointY}px)) scale(${scale})`;
     }
@@ -2036,8 +2040,9 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    viewport.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.unit-clickable')) return;
+viewport.addEventListener('mousedown', (e) => {
+      // منع السحب إذا تم الضغط على زر أو غرفة
+      if (e.target.closest('.unit-clickable') || e.target.closest('.map-ctrl-btn')) return;
       isPanning = true;
       startX = e.clientX - pointX;
       startY = e.clientY - pointY;
@@ -2054,14 +2059,29 @@
 
     viewport.addEventListener('wheel', (e) => {
       e.preventDefault();
+      
+      const oldScale = scale;
       const delta = -e.deltaY;
-      (delta > 0) ? (scale *= 1.12) : (scale /= 1.12);
+      
+      scale = delta > 0 ? scale * 1.12 : scale / 1.12;
       scale = Math.min(Math.max(0.3, scale), 15);
+      const scaleRatio = scale / oldScale;
+      
+      // التكبير باتجاه الماوس لمنع قفز الخريطة!
+      const rect = viewport.getBoundingClientRect();
+      const cx = e.clientX - rect.left - (rect.width / 2);
+      const cy = e.clientY - rect.top - (rect.height / 2);
+      
+      pointX = cx - (cx - pointX) * scaleRatio;
+      pointY = cy - (cy - pointY) * scaleRatio;
+      
       setTransform();
     }, {passive: false});
 
+    let lastTouchCenter = null;
+
     viewport.addEventListener('touchstart', (e) => {
-      if (e.target.closest('.unit-clickable')) return;
+      if (e.target.closest('.unit-clickable') || e.target.closest('.map-ctrl-btn')) return;
       if (e.touches.length === 1) {
         isPanning = true;
         startX = e.touches[0].clientX - pointX;
@@ -2069,6 +2089,10 @@
       } else if (e.touches.length === 2) {
         isPanning = false;
         lastTouchDistance = getDistance(e.touches[0], e.touches[1]);
+        lastTouchCenter = {
+          x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+          y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+        };
       }
     }, {passive: false});
 
@@ -2078,19 +2102,39 @@
         pointX = e.touches[0].clientX - startX;
         pointY = e.touches[0].clientY - startY;
         setTransform();
-      } else if (e.touches.length === 2 && lastTouchDistance) {
+      } else if (e.touches.length === 2 && lastTouchDistance && lastTouchCenter) {
         const currentDistance = getDistance(e.touches[0], e.touches[1]);
-        const deltaScale = currentDistance / lastTouchDistance;
-        let newScale = scale * deltaScale;
-        newScale = Math.min(Math.max(0.3, newScale), 15); 
-        scale = newScale;
+        const currentCenter = {
+          x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+          y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+        };
+        
+        const oldScale = scale;
+        scale = scale * (currentDistance / lastTouchDistance);
+        scale = Math.min(Math.max(0.3, scale), 15); 
+        const scaleRatio = scale / oldScale;
+        
+        const rect = viewport.getBoundingClientRect();
+        const cx = lastTouchCenter.x - rect.left - (rect.width / 2);
+        const cy = lastTouchCenter.y - rect.top - (rect.height / 2);
+        
+        // تكبير الخريطة باتجاه إصبعين لتظل ثابتة تماماً
+        pointX = cx - (cx - pointX) * scaleRatio;
+        pointY = cy - (cy - pointY) * scaleRatio;
+        
+        // دمج السحب (Panning) أثناء التكبير باللمس
+        pointX += currentCenter.x - lastTouchCenter.x;
+        pointY += currentCenter.y - lastTouchCenter.y;
+        
         lastTouchDistance = currentDistance;
+        lastTouchCenter = currentCenter;
         setTransform();
       }
     }, {passive: false});
 
     viewport.addEventListener('touchend', (e) => {
       lastTouchDistance = null;
+      lastTouchCenter = null;
       if (e.touches.length === 1) {
         isPanning = true;
         startX = e.touches[0].clientX - pointX;
@@ -2282,7 +2326,7 @@ function createHatchOverlay(unit) {
       return { x: dx, y: dy };
     }
 
-    function zoomToUnit(unit) {
+function zoomToUnit(unit) {
       const mapSvg = wrapper.querySelector('svg');
       if (!mapSvg) return;
 
@@ -2291,7 +2335,14 @@ function createHatchOverlay(unit) {
       const cy = bbox.y + (bbox.height / 2);
 
       let targetScale;
-      const zoomFactor = window.innerWidth <= 950 ? 4 : 5;
+      let zoomFactor = window.innerWidth <= 950 ? 1.5 : 2.5; // الزوم الافتراضي للقاعات
+
+      // 🌟 التعديل هنا: إذا كان العنصر "مكتب"، نضاعف مستوى الزوم
+      const unitType = unit.getAttribute('data-type');
+      if (unitType === 'مكتب') {
+        zoomFactor = window.innerWidth <= 950 ? 1.5 : 2.5; // 8 للجوال و 10 للكمبيوتر (مكاتب)
+      }
+
       targetScale = fitScale() * zoomFactor;
       scale = Math.min(Math.max(0.3, targetScale), 15);
 

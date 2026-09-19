@@ -114,6 +114,69 @@
       max-width: 520px;
     }
 
+    /* تنسيق جدول الساعات المكتبية */
+/* تنسيق جدول الساعات المكتبية بحدود عريضة */
+/* تنسيق جدول الساعات المكتبية بتصميم مطور وحدود عريضة */
+/* تنسيق جدول الساعات المكتبية الموحد (بدون إطار وبدون ألوان خلفية) */
+/* تنسيق جدول الساعات المكتبية بأطراف خارجية دائرية */
+.office-hours-container {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  display: none;
+}
+
+.office-hours-title {
+  font-size: 0.85rem;
+  color: var(--accent-cyan);
+  font-weight: 800;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.4px;
+}
+
+.office-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.78rem;
+  text-align: right;
+  border-radius: 10px; /* جعل الأطراف الخارجية دائرية */
+  overflow: hidden;    /* قص الخلايا الداخلية لتأخذ استدارة الإطار */
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+}
+
+.office-table th,
+.office-table td {
+  padding: 9px 12px;
+  color: #fff;
+  font-weight: 700; /* خط عريض وموحد لجميع النصوص */
+  background: transparent; /* بدون لون خلفية */
+  border-bottom: 1.5px solid var(--border-color);
+  border-left: 1.5px solid var(--border-color);
+}
+
+.office-table th:last-child,
+.office-table td:last-child {
+  border-left: none;
+}
+
+.office-table tr:last-child td {
+  border-bottom: none;
+}
+
+.office-table th {
+  color: var(--accent-cyan);
+  background: transparent;
+}
+
+.office-table tbody tr:hover td {
+  background: rgba(116, 210, 232, 0.05); /* تأثير خفيف عند مرور الماوس */
+}
+
     .building-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -926,6 +989,20 @@
             <span>الإيميل الجامعي:</span>
             <span id="infoEmail">—</span>
           </div>
+          <!-- جدول الساعات المكتبية -->
+<div class="office-hours-container" id="officeHoursContainer">
+<div class="office-hours-title">📅 الساعات المكتبية</div>  <table class="office-table">
+    <thead>
+      <tr>
+        <th>اليوم</th>
+        <th>الوقت</th>
+      </tr>
+    </thead>
+    <tbody id="officeHoursBody">
+      <!-- يتم تعبئتها ديناميكياً -->
+    </tbody>
+  </table>
+</div>
         </div>
       </div>
 
@@ -1473,7 +1550,7 @@
       "map_element_81": { "name": "د/احمد طلال المغامسي", "type": "مكتب", "email": "atharbi@taibahu.edu.sa"},
       "map_element_82": { "name": "مخزن", "type": "خدمات خاصة" },
       "map_element_83": { "name": "دورة مياه خاصة", "type": "خدمات خاصة" },
-      "map_element_84": { "name": "رئيس لجنة الإرشاد والجداول", "type": "مكتب", "email": "aemara@taibahu.edu.sa", "keywords": ["عبدالحميد عمارة", "دكتور عبدالحميد", "جدول", "جداول", "مرشد", "BIG BOSS", "البيق بوس", "موقع", "الحذف والاضافة", "حذف", "اضافة", "مادة", "مواد", "لجنة الارشاد", "الارشاد", "رئيس لجنة الارشاد - د/عبدالحميد عمارة", "مكتب رئيس لجنة الأرشاد"] },
+      "map_element_84": { "name": "رئيس لجنة الإرشاد والجداول", "type": "مكتب", "email": "aemara@taibahu.edu.sa", "keywords": ["عبدالحميد عمارة", "دكتور عبدالحميد", "جدول", "جداول", "مرشد", "BIG BOSS", "البيق بوس", "موقع", "الحذف والاضافة", "حذف", "اضافة", "مادة", "مواد", "لجنة الارشاد", "الارشاد", "رئيس لجنة الارشاد - د/عبدالحميد عمارة", "مكتب رئيس لجنة الأرشاد"],"officeHours": [{ "day": "الأحد والثلاثاء", "time": "10:00 ص - 12:00 م" },{ "day": "الإثنين", "time": "01:00 م - 03:00 م" }] },
       "map_element_85": { "name": "درج", "type": "خدمات عامة" },
       "map_element_86": { "name": "مصعد", "type": "خدمات عامة" },
       "map_element_87": { "name": "دورة مياه", "type": "خدمات عامة", "keywords": ["حمام", "WC"] },
@@ -2023,7 +2100,7 @@ function setTransform() {
           el.setAttribute('data-name', customData.name);
           el.setAttribute('data-type', customData.type);
           if (customData.email) el.setAttribute('data-email', customData.email);
-          if (customData.keywords) {
+if (customData.officeHours) el.setAttribute('data-hours', JSON.stringify(customData.officeHours));          if (customData.keywords) {
             el.setAttribute('data-keywords', customData.keywords.join(' '));
           }
         } else if (!el.hasAttribute('data-name')) {
@@ -2239,6 +2316,22 @@ function createHatchOverlay(unit) {
 }
 
     function selectUnit(unit) {
+    // عرض الساعات المكتبية إذا وجدت
+const hoursData = unit.getAttribute('data-hours');
+const hoursContainer = document.getElementById('officeHoursContainer');
+const hoursBody = document.getElementById('officeHoursBody');
+
+if (hoursData) {
+  try {
+    const hours = JSON.parse(hoursData);
+    hoursBody.innerHTML = hours.map(h => `<tr><td>${h.day}</td><td>${h.time}</td></tr>`).join('');
+    hoursContainer.style.display = 'block';
+  } catch(e) {
+    hoursContainer.style.display = 'none';
+  }
+} else {
+  hoursContainer.style.display = 'none';
+}
       clearSelection();
       selectedElement = unit;
 

@@ -695,10 +695,12 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       }
 
-      .mobile-only-row {
+.mobile-only-row {
         display: flex;
+        flex-direction: row; 
         justify-content: space-between;
         align-items: center;
+        gap: 8px;
         margin-top: 12px;
       }
 
@@ -712,25 +714,44 @@
       }
 
       #infoNameMobile {
-        font-size: 1.1rem;
+        font-size: 0.9rem; 
         color: #fff;
         margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 70%;
+        flex: 1; 
+        min-width: 0; 
+      }
+
+      .action-buttons-row {
+        display: flex;
+        gap: 6px; 
+        flex-shrink: 0; 
+      }
+
+      .quick-links-toggle {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 0;
+        padding: 6px 10px; 
+        font-size: 0.75rem; 
       }
 
       .details-btn {
         background: var(--accent-cyan);
         color: #000;
         border: none;
-        padding: 8px 16px;
+        padding: 6px 10px; 
         border-radius: 8px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.75rem; 
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(116, 210, 232, 0.3);
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
       }
 
       .bottom-sheet {
@@ -774,9 +795,6 @@
       /* في الوضع العامودي تُدار خريطة أبيار 270 درجة لتملأ شاشة الجوال */
       .map-abiyar svg { transform: rotate(270deg); }
 
-      .quick-links-toggle {
-        display: flex;
-      }
       .quick-links-container {
         display: none;
         margin-top: 12px;
@@ -935,17 +953,17 @@
           <ul id="suggestionsList" class="suggestions-list"></ul>
         </div>
 
-<div class="mobile-only-row">
-  <h3 id="infoNameMobile">لم يتم اختيار عنصر</h3>
-</div>
-
-<div class="mobile-buttons-row">
-  <button id="toggleQuickLinksBtn" class="quick-links-toggle">
-    <span>استكشاف سريع</span>
-    <span class="toggle-icon">▼</span>
-  </button>
-  <button class="details-btn" id="mobileMenuBtn">التفاصيل ☰</button>
-</div>
+      <div class="mobile-only-row">
+        <h3 id="infoNameMobile">لم يتم اختيار عنصر</h3>
+        
+        <div class="action-buttons-row">
+          <button id="toggleQuickLinksBtn" class="quick-links-toggle">
+            <span>استكشاف سريع</span>
+            <span class="toggle-icon">▼</span>
+          </button>
+          <button class="details-btn" id="mobileMenuBtn">التفاصيل ☰</button>
+        </div>
+      </div>
 
         <div class="quick-links-container" id="quickLinksContainer"></div>
 

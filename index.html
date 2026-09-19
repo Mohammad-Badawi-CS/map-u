@@ -32,71 +32,192 @@
       position: relative;
     }
 
-    /* نافذة اختيار المبنى */
-    .building-modal {
+    /* صفحة اختيار المبنى (صفحة ترحيب مستقلة) */
+    .welcome-page {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(12, 13, 17, 0.85);
-      backdrop-filter: blur(8px);
       z-index: 999;
+      overflow-y: auto;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(116, 210, 232, 0.16), transparent 60%),
+        radial-gradient(900px 500px at 10% 110%, rgba(138, 120, 176, 0.18), transparent 55%),
+        linear-gradient(160deg, #0f1115 0%, #14181d 55%, #0c0e11 100%);
       display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 1;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      flex-direction: column;
+      transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.45s ease;
     }
-    .building-modal.hidden {
+    .welcome-page.hidden {
       opacity: 0;
+      transform: scale(1.03);
       visibility: hidden;
       pointer-events: none;
     }
-    .building-modal-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 32px 24px;
-      width: 90%;
-      max-width: 440px;
-      text-align: center;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.6);
-    }
-    .building-modal-card h2 {
-      font-size: 1.4rem;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-    .building-modal-card p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
-    .building-options {
+
+    .welcome-inner {
+      width: 100%;
+      max-width: 920px;
+      margin: auto;
+      padding: clamp(24px, 5vw, 56px) clamp(18px, 4vw, 32px) 40px;
       display: flex;
       flex-direction: column;
+      gap: clamp(24px, 4vh, 40px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #06181d;
+      background: linear-gradient(140deg, var(--accent-cyan), #4fb6d4);
+      box-shadow: 0 8px 24px rgba(116, 210, 232, 0.35);
+      flex-shrink: 0;
+    }
+    .brand h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .welcome-head-text {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .welcome-title {
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
+    }
+    .welcome-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    .building-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .building-card {
+      position: relative;
+      text-align: right;
+      background: linear-gradient(160deg, rgba(35, 40, 47, 0.9), rgba(24, 28, 33, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 22px;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .building-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(400px 120px at 100% 0%, rgba(116, 210, 232, 0.14), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .building-card:hover,
+    .building-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(116, 210, 232, 0.25);
+      outline: none;
+    }
+    .building-card:hover::after,
+    .building-card:focus-visible::after { opacity: 1; }
+    .building-card:active { transform: translateY(-1px); }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
     }
-    .building-btn {
-      background: #23282f;
-      color: #fff;
-      border: 1px solid var(--border-color);
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: inherit;
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.7rem;
+      background: rgba(116, 210, 232, 0.12);
+      border: 1px solid rgba(116, 210, 232, 0.25);
+      flex-shrink: 0;
     }
-    .building-btn:hover {
-      background: rgba(116, 210, 232, 0.15);
-      border-color: var(--accent-cyan);
+    .card-floors {
+      font-size: 0.72rem;
+      font-weight: 700;
       color: var(--accent-cyan);
+      background: rgba(116, 210, 232, 0.12);
+      border: 1px solid rgba(116, 210, 232, 0.25);
+      padding: 5px 11px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .card-code {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: var(--accent-orange);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .card-cta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    .card-cta .arrow { transition: transform 0.25s ease; }
+    .building-card:hover .card-cta .arrow { transform: translateX(-6px); }
+
+    .welcome-foot {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #6c757d;
     }
 
     .switch-building-btn {
@@ -161,20 +282,51 @@
       width: 100%;
     }
 
-    .search-box input {
-      width: 100%;
-      padding: 10px 14px;
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       background: #121417;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 10px;
+      padding: 0 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .search-box:focus-within {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(116, 210, 232, 0.12);
+    }
+    .search-icon {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      padding: 11px 0;
+      background: transparent;
+      border: none;
       color: #fff;
       font-size: 0.9rem;
       outline: none;
+      font-family: inherit;
     }
-
-    .search-box input:focus {
-      border-color: var(--accent-cyan);
+    .search-clear {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 4px 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
     }
+    .search-clear:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+    .search-clear.visible { display: block; }
 
     .suggestions-list {
       position: absolute;
@@ -424,6 +576,70 @@
       color: #fff;
     }
 
+    /* أدوات التحكم بالتكبير العائمة على الخريطة */
+    .map-controls {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(28, 32, 36, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+    }
+    .map-ctrl-btn {
+      width: 42px;
+      height: 42px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.18s ease;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .map-ctrl-btn:hover {
+      background: rgba(116, 210, 232, 0.15);
+      color: var(--accent-cyan);
+    }
+    .map-ctrl-btn:active { transform: scale(0.92); }
+    .map-ctrl-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 2px 4px;
+    }
+    .map-ctrl-btn.reset { font-size: 1rem; }
+    .map-ctrl-btn.buildings { font-size: 1.15rem; }
+
+    .map-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9;
+      background: rgba(12, 13, 17, 0.75);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      white-space: nowrap;
+    }
+    .map-hint.fade { opacity: 0; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -554,6 +770,11 @@
         bottom: 80px;
         right: 16px;
       }
+      .map-controls {
+        bottom: 80px;
+        left: 16px;
+      }
+      .map-hint { display: none; }
     }
 
     @media (max-width: 950px) and (orientation: landscape) {
@@ -584,21 +805,57 @@
 </head>
 <body>
 
-  <!-- نافذة الترحب واختيار المبنى الرئيسي -->
-  <div class="building-modal" id="buildingModal">
-    <div class="building-modal-card">
-      <h2>الخريطة الجامعية T MAP</h2>
-      <p>يرجى اختيار المبنى للبدء في الاستكشاف:</p>
-      <div class="building-options">
-        <button class="building-btn" onclick="selectBuilding('abiyar')">
-          <span>🏛️ مبنى أبيار علي 172</span>
-          <span>←</span>
+  <!-- صفحة الترحيب واختيار المبنى الرئيسي -->
+  <div class="welcome-page" id="welcomePage">
+    <div class="welcome-inner">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <div>
+          <h1>T MAP</h1>
+          <p>الخريطة الجامعية التفاعلية</p>
+        </div>
+      </div>
+
+      <div class="welcome-head-text">
+        <h2 class="welcome-title">اختر المبنى لبدء الاستكشاف</h2>
+        <p class="welcome-sub">تصفّح المكاتب والقاعات والخدمات داخل المبنى، وابحث بالاسم أو المنصب، وشاهد التفاصيل وموقعها على الخريطة مباشرة.</p>
+      </div>
+
+      <div class="building-grid">
+        <button class="building-card" onclick="selectBuilding('abiyar')">
+          <div class="card-top">
+            <div class="card-icon">🏛️</div>
+            <span class="card-floors">دور واحد</span>
+          </div>
+          <div>
+            <div class="card-title">مبنى أبيار علي</div>
+            <span class="card-code">رمز المبنى 172</span>
+          </div>
+          <p class="card-desc">مكاتب الكلية والعمادة ورؤساء الأقسام، إضافة إلى الخدمات العامة والمقهى والمطعم والمصليات.</p>
+          <div class="card-cta">
+            <span>استعراض المبنى</span>
+            <span class="arrow">←</span>
+          </div>
         </button>
-        <button class="building-btn" onclick="selectBuilding('engineering')">
-          <span>⚙️ مبنى كلية الهندسة 125</span>
-          <span>←</span>
+
+        <button class="building-card" onclick="selectBuilding('engineering')">
+          <div class="card-top">
+            <div class="card-icon">⚙️</div>
+            <span class="card-floors">دوران</span>
+          </div>
+          <div>
+            <div class="card-title">مبنى كلية الهندسة</div>
+            <span class="card-code">رمز المبنى 125</span>
+          </div>
+          <p class="card-desc">الأقسام الهندسية والمعامل في الدور الأرضي، والقاعات الدراسية ومكاتب هيئة التدريس في الدور الثاني.</p>
+          <div class="card-cta">
+            <span>استعراض المبنى</span>
+            <span class="arrow">←</span>
+          </div>
         </button>
       </div>
+
+      <div class="welcome-foot">يمكنك تغيير المبنى في أي وقت من داخل الخريطة.</div>
     </div>
   </div>
 
@@ -619,6 +876,18 @@
     <div id="map-wrapper" class="map-abiyar">
       <!-- SVG يولد هنا -->
     </div>
+
+    <!-- أدوات التحكم بالتكبير -->
+    <div class="map-controls">
+      <button class="map-ctrl-btn buildings" id="buildingSwitchBtn" title="تغيير المبنى" aria-label="تغيير المبنى">🏛</button>
+      <div class="map-ctrl-divider"></div>
+      <button class="map-ctrl-btn" id="zoomInBtn" title="تكبير" aria-label="تكبير">+</button>
+      <button class="map-ctrl-btn" id="zoomOutBtn" title="تصغير" aria-label="تصغير">−</button>
+      <div class="map-ctrl-divider"></div>
+      <button class="map-ctrl-btn reset" id="resetViewBtn" title="إعادة ضبط العرض" aria-label="إعادة ضبط العرض">⤢</button>
+    </div>
+
+    <div class="map-hint" id="mapHint">اسحب للتحريك · استخدم العجلة أو الزرين للتكبير · اضغط على أي غرفة لعرض تفاصيلها</div>
   </div>
 
   <aside class="sidebar" id="sidebar">
@@ -633,7 +902,9 @@
       <div class="top-panel">
         <div class="search-container">
           <div class="search-box">
+            <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="بحث باسم شخص أو منصب أو قاعة...">
+            <button class="search-clear" id="searchClear" type="button" aria-label="مسح البحث">✕</button>
           </div>
           <ul id="suggestionsList" class="suggestions-list"></ul>
         </div>
@@ -1393,7 +1664,7 @@
 
     function selectBuilding(buildingKey) {
       currentBuilding = buildingKey;
-      document.getElementById('buildingModal').classList.add('hidden');
+      document.getElementById('welcomePage').classList.add('hidden');
 
       const wrapper = document.getElementById('map-wrapper');
       const title = document.getElementById('currentBuildingTitle');
@@ -1444,7 +1715,9 @@
     }
 
     function showBuildingModal() {
-      document.getElementById('buildingModal').classList.remove('hidden');
+      const welcome = document.getElementById('welcomePage');
+      welcome.scrollTop = 0;
+      welcome.classList.remove('hidden');
     }
 
     function renderQuickLinksAbiyar() {
@@ -1553,6 +1826,15 @@
     const overlay = document.getElementById('overlay');
     const searchInput = document.getElementById('searchInput');
     const suggestionsList = document.getElementById('suggestionsList');
+    const searchClear = document.getElementById('searchClear');
+
+    if (searchClear) {
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+      });
+    }
 
     const toggleQuickLinksBtn = document.getElementById('toggleQuickLinksBtn');
     const quickLinksContainer = document.getElementById('quickLinksContainer');
@@ -1931,6 +2213,32 @@ function createHatchOverlay(unit) {
       }, 600);
     }
         
+    function zoomBy(factor) {
+      const prev = scale;
+      scale = Math.min(Math.max(0.3, scale * factor), 15);
+      if (scale === prev) return;
+      wrapper.style.transition = 'transform 0.18s ease-out';
+      setTransform();
+      clearTimeout(zoomBy._t);
+      zoomBy._t = setTimeout(() => { wrapper.style.transition = ''; }, 180);
+    }
+
+    document.getElementById('zoomInBtn').addEventListener('click', () => zoomBy(1.25));
+    document.getElementById('zoomOutBtn').addEventListener('click', () => zoomBy(0.8));
+    document.getElementById('resetViewBtn').addEventListener('click', () => {
+      clearSelection();
+      resetMapPosition();
+    });
+    document.getElementById('buildingSwitchBtn').addEventListener('click', () => showBuildingModal());
+
+    const mapHint = document.getElementById('mapHint');
+    if (mapHint) {
+      setTimeout(() => mapHint.classList.add('fade'), 6500);
+      ['mousedown', 'touchstart', 'wheel'].forEach(evt =>
+        viewport.addEventListener(evt, () => mapHint.classList.add('fade'), { once: true, passive: true })
+      );
+    }
+
     function zoomToUnit(unit) {
       const mapSvg = wrapper.querySelector('svg');
       if (!mapSvg) return;
@@ -1973,6 +2281,8 @@ function createHatchOverlay(unit) {
     searchInput.addEventListener('input', (e) => {
       const term = e.target.value.trim().toLowerCase();
       suggestionsList.innerHTML = '';
+
+      if (searchClear) searchClear.classList.toggle('visible', e.target.value.length > 0);
 
       if (!term) {
         suggestionsList.classList.remove('active');

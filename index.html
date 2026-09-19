@@ -1788,7 +1788,6 @@
         <div class="quick-list">
           <div class="category-title">الخدمات العامة</div>
           <div class="chips-scroll">
-            <button class="chip" data-search="مقهى">☕ مقهى</button>
             <button class="chip" data-search="مطعم">🍽️ مطعم</button>
             <button class="chip" data-search="مصلى">🕌 المصليات</button>
             <button class="chip" data-search="دورة مياه">🚻 دورات مياه</button>
@@ -2040,8 +2039,8 @@ function setTransform() {
           el.setAttribute('data-type', type);
         }
 
-        if (id !== `${prefix}1` && id !== 'map_engtu_41' && id !== 'map_engtu_42' && id !== 'map_engtu_79') {
-          el.classList.add('unit-clickable');
+        if (id !== `${prefix}1` && id !== 'map_engtu_41' && id !== 'map_engtu_42' && id !== 'map_engtu_79' && id !== 'map_engf2_42' && id !== 'map_engf2_80') {
+            el.classList.add('unit-clickable');
         }
       });
 
@@ -2050,13 +2049,12 @@ function setTransform() {
       const rootElementId = `${prefix}1`;
       units.forEach(unit => {
         const uId = unit.getAttribute('data-id');
-        if (uId !== rootElementId && uId !== 'map_engtu_41' && uId !== 'map_engtu_42') {
-          unit.onclick = (e) => {
-            e.stopPropagation();
-            selectUnit(unit);
-          };
+          if (uId !== rootElementId && uId !== 'map_engtu_41' && uId !== 'map_engtu_42' && uId !== 'map_engtu_79' && uId !== 'map_engf2_42' && uId !== 'map_engf2_80') {            unit.onclick = (e) => {
+                e.stopPropagation();
+                selectUnit(unit);
+                if (unit.getAttribute('data-id') === 'map_engf2_42' || unit.getAttribute('data-id') === 'map_engf2_80' || unit.getAttribute('data-id') === 'map_engtu_79') return;            };
         } else {
-          unit.onclick = null;
+            unit.onclick = null;
         }
       });
 
@@ -2250,8 +2248,8 @@ function createHatchOverlay(unit) {
 
       const unitId = unit.getAttribute('data-id');
 
-      if (unitId !== `${prefix}1` && unitId !== 'map_engtu_24') {
-        unit.parentNode.appendChild(unit);
+      if (unitId !== `${prefix}1` && unitId !== 'map_engtu_24' && unitId !== 'map_engf2_2') {
+          unit.parentNode.appendChild(unit);
       }
 
       unit.classList.add('selected-active');
@@ -2406,20 +2404,21 @@ function zoomToUnit(unit) {
       if (currentBuilding === 'engineering') prefix = 'map_engtu_';
       else if (currentBuilding === 'engineering_f2') prefix = 'map_engf2_';
 
-      const matches = units.filter(unit => {
-        const id = (unit.getAttribute('data-id') || '').toLowerCase();
-        if (id === `${prefix}1` || id === 'map_engtu_41' || id === 'map_engtu_42') return false; 
-        const name = (unit.getAttribute('data-name') || '').toLowerCase();
-        const keywords = (unit.getAttribute('data-keywords') || '').toLowerCase();
+const matches = units.filter(unit => {
+    const id = (unit.getAttribute('data-id') || '').toLowerCase();
+    if (id === `${prefix}1` || id === 'map_engtu_41' || id === 'map_engtu_42' || id === 'map_engtu_79' || id === 'map_engf2_42' || id === 'map_engf2_80') return false;
+    
+    const name = (unit.getAttribute('data-name') || '').toLowerCase();
+    const keywords = (unit.getAttribute('data-keywords') || '').toLowerCase();
 
-        return name.includes(term) || id.includes(term) || keywords.includes(term);
-      });
+    return name.includes(term) || id.includes(term) || keywords.includes(term);
+  });
 
       if (matches.length > 0) {
         let groupName = null;
         if (term === "مصعد" || term === "مصاعد") groupName = "المصاعد";
         else if (term === "درج" || term === "سلالم") groupName = "السلالم";
-        else if (term === "المصليات" || term === "مصلى") groupName = "المصليات";
+        else if (term === "مسجد" || term === "مصلى") groupName = "المصليات";
         else if (term === "دورات المياه" || term === "WC") groupName = "دورات المياه";
         else if (term === "مخزن" || term === "مستودع") groupName = "المخازن";
         else if (term === "معمل" || term === "معامل") groupName = "المعامل";
